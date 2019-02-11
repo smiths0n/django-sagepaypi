@@ -1,0 +1,6 @@
+# The app itself
+-e .
+
+Django>=2,<2.2
+mock
+psycopg2-binary
