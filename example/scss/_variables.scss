@@ -1,0 +1,21 @@
+// colors
+$colors: (
+    "white":                    rgb(255, 255, 255),
+    "primary":                  rgb(67, 177, 176),
+    "mineshaft":                rgb(51, 51, 51)
+    
+);
+
+// defined colors
+$body-background:               rgb(253, 253, 253);
+
+
+// forms
+$input-use-full-width:          true;
+
+
+// buttons
+$buttons: (
+    // name         color                          font-color
+    mineshaft:      map-get($colors, "mineshaft")  map-get($colors, "white"),
+) !default;

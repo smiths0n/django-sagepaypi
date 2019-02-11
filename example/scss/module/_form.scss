@@ -1,0 +1,35 @@
+// Form
+// -------------------------------------------------
+
+form h2 {
+    margin-bottom: 3rem;
+}
+
+form .field-row {
+
+    ul {
+        list-style-type: none;
+    }
+
+    &.has-error {
+
+        input,
+        select,
+        textarea {
+            border-color: color("red");
+        }
+
+        .errorlist {
+            margin-bottom: 0;
+            float: right;
+            list-style-type: none;
+            color: color("red");
+        }
+
+    }
+
+}
+
+form .form-actions {
+    padding-top: 3rem;
+}
