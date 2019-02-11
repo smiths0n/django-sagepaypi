@@ -1,0 +1,7 @@
+{% extends 'example/base.html' %}
+{% load i18n sagepaypi_tags %}
+
+{% block content %}
+    <p>{% trans 'Redirecting - please wait' %}</p>
+    {% sagepay_secure_redirect_form transaction %}
+{% endblock %}

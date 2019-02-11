@@ -1,6 +1,5 @@
 # The app itself
--e .
+-e .[tests]
 
-Django>=2,<2.2
-mock
-psycopg2-binary
+django-formtools
+psycopg2

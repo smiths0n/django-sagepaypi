@@ -1,4 +1,4 @@
-from django.db import models, connection
+from django.db import models
 from django.test import TestCase
 
 
@@ -6,6 +6,10 @@ class AppTestCase(TestCase):
 
     def get_field(self, modelClass, name):
         return modelClass._meta.get_field(name)
+
+    _non_blankable_fields = [
+        models.BooleanField
+    ]
 
     def assertModelField(self, field, expected_class, null=False, blank=False, default=None):
         self.assertEqual(field.__class__, expected_class)

@@ -1,5 +1,5 @@
 /* karma-css core */
-/*! Karma-CSS v1.9.6 MIT License | http://karmacss.com | https://github.com/accentdesign/karma-css */
+/*! Karma-CSS v1.9.7 MIT License | http://karmacss.com | https://github.com/accentdesign/karma-css */
 .container {
   padding-right: 15px;
   padding-left: 15px;
@@ -1387,15 +1387,18 @@ td {
   border: solid 1px #e6e6e6;
 }
 
-.table-headed th {
+/* stylelint-disable selector-max-type */
+.table-headed > thead > tr > th,
+.table-headed > tbody > tr > th {
   background-color: #f0f0f0;
 }
 
-.table-striped tbody tr:nth-child(odd) {
+/* stylelint-enable selector-max-type */
+.table-striped > tbody > tr:nth-child(odd) {
   background-color: #fafafa;
 }
 
-.table-hover tbody tr:hover {
+.table-hover > tbody > tr:hover {
   background-color: whitesmoke;
 }
 
@@ -1504,29 +1507,23 @@ sup {
 }
 
 /* add your custom modules here */
-form h2 {
-  margin-bottom: 3rem;
+form button {
+  margin-top: 3rem;
 }
 
-form .field-row ul {
+form ul {
   list-style-type: none;
 }
 
-form .field-row.has-error input,
-form .field-row.has-error select,
-form .field-row.has-error textarea {
-  border-color: #ff4136;
-}
-
-form .field-row.has-error .errorlist {
-  margin-bottom: 0;
-  float: right;
-  list-style-type: none;
+form .errorlist {
   color: #ff4136;
 }
 
-form .form-actions {
-  padding-top: 3rem;
+form .helptext {
+  display: block;
+  font-size: 90%;
+  margin-bottom: 1.5rem;
+  opacity: 0.7;
 }
 
 header {
@@ -1554,28 +1551,6 @@ footer .links li {
 
 footer .links li + li {
   margin-left: 2rem;
-}
-
-.messages {
-  list-style-type: none;
-  margin-bottom: 4rem;
-}
-
-.messages li {
-  padding: 1.5rem 2rem;
-  border-radius: 0.25rem;
-}
-
-.messages li.success {
-  border: 1px solid #43b1b0;
-  background: #e5f5f5;
-  color: #43b1b0;
-}
-
-.messages li.error {
-  border: 1px solid #ff4136;
-  background: #ffeae9;
-  color: #ff4136;
 }
 
 /* karma-css utilities */
@@ -2094,7 +2069,7 @@ footer .links li + li {
 }
 
 .muted {
-  opacity: .7;
+  opacity: 0.7;
 }
 
 .nowrap {

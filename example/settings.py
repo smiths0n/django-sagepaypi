@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # app specific
+    'formtools',
     'sagepaypi',
     'example',
 ]
@@ -117,3 +118,11 @@ STATIC_URL = "/static/"
 
 MEDIA_ROOT = join(SITE_DIR, "media")
 MEDIA_URL = "/media/"
+
+
+# SagePayPI
+
+SAGEPAYPI_VENDOR_NAME = 'sandbox'
+SAGEPAYPI_INTEGRATION_KEY = 'hJYxsw7HLbj40cB8udES8CDRFLhuJ8G54O6rDpUXvE6hYDrria'
+SAGEPAYPI_INTEGRATION_PASSWORD = 'o2iHSrFybYMZpmWOQMuhsXP52V4fBtpuSDshrKDSWsBY1OiN6hwd9Kb12z4j5Us5u'
+SAGEPAYPI_POST_3D_SECURE_REDIRECT_URL = 'transaction_status'

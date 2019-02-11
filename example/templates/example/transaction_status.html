@@ -1,0 +1,14 @@
+{% extends 'example/base.html' %}
+{% load i18n %}
+
+{% block content %}
+    <h2>{% trans 'Transaction Status' %}</h2>
+    <p>Status: {{ transaction.status }}</p>
+    <p>Status Code: {{ transaction.status_code }}</p>
+    <p>Detail: {{ transaction.status_detail }}</p>
+    <p>Amount: {{ transaction.amount }}</p>
+    <p>Description: {{ transaction.description }}</p>
+    {% if transaction.successful %}
+    <p>Bank authorisation code: {{ transaction.bank_authorisation_code }}</p>
+    {% endif %}
+{% endblock %}
