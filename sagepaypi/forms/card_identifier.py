@@ -1,8 +1,9 @@
+import dateutil
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
-from sagepaypi.gateway import SagepayGateway
+from sagepaypi.gateway import SagepayGateway, SagepayHttpResponse
 from sagepaypi.fields import CardNumberField, CardCVCodeField, CardExpiryDateField
 from sagepaypi.models import CardIdentifier
 
@@ -41,23 +42,30 @@ class CardIdentifierForm(forms.ModelForm):
 
         gateway = SagepayGateway()
 
-        new_identifier = gateway.create_card_identifier(
-            self.cleaned_data['card_holder_name'],
-            self.cleaned_data['card_number'],
-            self.cleaned_data['card_expiry_date'].strftime('%m%y'),
-            self.cleaned_data['card_security_code']
-        )
+        post_data = {
+            'cardDetails': {
+                'cardholderName': self.cleaned_data['card_holder_name'],
+                'cardNumber': self.cleaned_data['card_number'],
+                'expiryDate': self.cleaned_data['card_expiry_date'].strftime('%m%y'),
+                'securityCode': self.cleaned_data['card_security_code'],
+            }
+        }
 
-        if not new_identifier:
-            return ValidationError('oops')
+        response, merchant_session_key = gateway.create_card_identifier(post_data)
 
-        instance.merchant_session_key = new_identifier[0]
-        instance.card_identifier = new_identifier[1]
-        instance.card_identifier_expiry = new_identifier[2]
-        instance.card_type = new_identifier[3]
-        instance.last_four_digits = self.cleaned_data['card_number'][-4:]
-        instance.expiry_date = self.cleaned_data['card_expiry_date'].strftime('%m%y')
+        data = response.json()
 
-        instance.save()
+        if response.status_code == SagepayHttpResponse.HTTP_201:
+            instance.merchant_session_key = merchant_session_key
+            instance.card_identifier = data['cardIdentifier']
+            instance.card_identifier_expiry = dateutil.parser.parse(data['expiry'])
+            instance.card_type = data['cardType']
+            instance.last_four_digits = self.cleaned_data['card_number'][-4:]
+            instance.expiry_date = self.cleaned_data['card_expiry_date'].strftime('%m%y')
+
+            instance.save(commit)
+
+        else:
+            raise ValidationError(data)
 
         return instance

@@ -45,9 +45,7 @@ class SagepayGateway:
 
     def get_merchant_session_key(self):
         url = '%s/merchant-session-keys' % self.api_url()
-        post_data = {
-            'vendorName': self.vendor_name()
-        }
+        post_data = {'vendorName': self.vendor_name()}
 
         response = requests.post(url, json=post_data, auth=self.basic_auth())
 
@@ -58,57 +56,31 @@ class SagepayGateway:
 
             return merchant_session_key, expiry
 
-        return None
+        return None, None
 
-    def create_card_identifier(self, card_holder_name, card_number, expiry_date, security_code):
+    def create_card_identifier(self, data):
         url = '%s/card-identifiers' % self.api_url()
         session_key = self.get_merchant_session_key()
         headers = {'Authorization': 'Bearer %s' % session_key[0]}
-        post_data = {
-            'cardDetails': {
-                'cardholderName': card_holder_name,
-                'cardNumber': card_number,
-                'expiryDate': expiry_date,
-                'securityCode': security_code,
-            }
-        }
 
-        response = requests.post(url, json=post_data, headers=headers)
+        return requests.post(url, json=data, headers=headers), session_key[0]
 
-        if response.status_code == SagepayHttpResponse.HTTP_201:
-            data = response.json()
-            card_identifier = data['cardIdentifier']
-            card_identifier_expiry = dateutil.parser.parse(data['expiry'])
-            card_type = data['cardType']
-
-            return session_key[0], card_identifier, card_identifier_expiry, card_type
-
-        return None
-
-    def submit_transaction(self, transaction_data):
-        url = '%s/transactions' % self.api_url()
-
-        response = requests.post(url, json=transaction_data, auth=self.basic_auth())
-
-        return response
-
-    def get_3d_secure_status(self, transaction_id, transaction_data):
+    def get_3d_secure_status(self, transaction_id, data):
         url = '%s/transactions/%s/3d-secure' % (self.api_url(), transaction_id)
 
-        response = requests.post(url, json=transaction_data, auth=self.basic_auth())
-
-        return response
+        return requests.post(url, json=data, auth=self.basic_auth())
 
     def get_transaction_outcome(self, transaction_id):
         url = '%s/transactions/%s' % (self.api_url(), transaction_id)
 
-        response = requests.get(url, auth=self.basic_auth())
+        return requests.get(url, auth=self.basic_auth())
 
-        return response
+    def submit_transaction(self, data):
+        url = '%s/transactions' % self.api_url()
 
-    def submit_instruction(self, transaction_id, transaction_data):
+        return requests.post(url, json=data, auth=self.basic_auth())
+
+    def submit_transaction_instruction(self, transaction_id, data):
         url = '%s/transactions/%s/instructions' % (self.api_url(), transaction_id)
 
-        response = requests.post(url, json=transaction_data, auth=self.basic_auth())
-
-        return response
+        return requests.post(url, json=data, auth=self.basic_auth())

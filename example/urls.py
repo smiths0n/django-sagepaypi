@@ -3,14 +3,13 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
-from example.views import TransactionCreateView, TransactionListView, TransactionStatusView
+from example.views import TransactionCreateView, TransactionStatusView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('sagepay/', include('sagepaypi.urls')),
-    path('transactions/<tidb64>/<token>/status/', TransactionStatusView.as_view(), name='transaction_status'),
-    path('transactions/create/', TransactionCreateView.as_view(), name='transaction_create'),
-    path('', TransactionListView.as_view(), name='customers'),
+    path('<tidb64>/<token>/status/', TransactionStatusView.as_view(), name='transaction_status'),
+    path('', TransactionCreateView.as_view()),
 ]
 
 if settings.DEBUG:  # pragma: no cover

@@ -208,7 +208,7 @@ class Transaction(models.Model):
             'description': self.description
         }
 
-        if self.type in ['Payment', 'Deferred']:
+        if self.type == 'Payment' or self.type == 'Deferred':
             new_transaction.update({
                 'paymentMethod': {
                     'card': {
@@ -222,7 +222,7 @@ class Transaction(models.Model):
                 'billingAddress': self.card_identifier.billing_address
             })
 
-        elif self.type in ['Repeat', 'Refund']:
+        else:
             new_transaction.update({
                 'referenceTransactionId': self.reference_transaction.transaction_id
             })
@@ -351,7 +351,7 @@ class Transaction(models.Model):
             'instructionType': 'release',
             'amount': self.amount
         }
-        response = gateway.submit_instruction(self.transaction_id, post_data)
+        response = gateway.submit_transaction_instruction(self.transaction_id, post_data)
 
         data = response.json()
 
@@ -397,7 +397,7 @@ class Transaction(models.Model):
             'instructionType': 'abort',
             'amount': self.amount
         }
-        response = gateway.submit_instruction(self.transaction_id, post_data)
+        response = gateway.submit_transaction_instruction(self.transaction_id, post_data)
 
         data = response.json()
 
@@ -440,7 +440,7 @@ class Transaction(models.Model):
 
         gateway = SagepayGateway()
         post_data = {'instructionType': 'void'}
-        response = gateway.submit_instruction(self.transaction_id, post_data)
+        response = gateway.submit_transaction_instruction(self.transaction_id, post_data)
 
         data = response.json()
 

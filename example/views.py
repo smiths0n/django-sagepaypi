@@ -1,8 +1,8 @@
 from django.core.exceptions import ValidationError
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from django.urls import reverse
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView
 
 from formtools.wizard.views import SessionWizardView
 from sagepaypi.conf import get_setting
@@ -10,11 +10,6 @@ from sagepaypi.forms import CardIdentifierForm
 from sagepaypi.models import Transaction
 
 from example.forms import TransactionForm
-
-
-class TransactionListView(ListView):
-    template_name = 'example/transactions.html'
-    model = Transaction
 
 
 class TransactionCreateView(SessionWizardView):
