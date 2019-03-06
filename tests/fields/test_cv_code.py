@@ -14,8 +14,8 @@ class TestField(AppTestCase):
             '123 ',
             '12 3'
         ]
+        field = CardCVCodeField()
         for value in values:
-            field = CardCVCodeField()
             self.assertTrue(field.clean(value))
 
     def test_invalid_values(self):
@@ -27,8 +27,12 @@ class TestField(AppTestCase):
             ' 12',
             '12 '
         ]
+        field = CardCVCodeField()
         for value in values:
-            field = CardCVCodeField()
             with self.assertRaises(forms.ValidationError) as e:
                 field.clean(value)
             self.assertEqual('The security code you entered is invalid.', e.exception.args[0])
+
+        with self.assertRaises(forms.ValidationError) as e:
+            field.clean('')
+        self.assertEqual('Please enter the three or four digit security code.', e.exception.args[0])

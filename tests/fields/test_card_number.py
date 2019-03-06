@@ -28,16 +28,18 @@ class TestField(AppTestCase):
             '36000000000008',
             '3569990000000009',
         ]
+        field = CardNumberField()
+
         for value in values:
-            field = CardNumberField()
             self.assertTrue(field.clean(value))
 
     def test_invalid_values(self):
-        values = [
-            '1234',
-        ]
-        for value in values:
-            field = CardNumberField()
-            with self.assertRaises(forms.ValidationError) as e:
-                field.clean(value)
-            self.assertEqual('The credit card number you entered is invalid.', e.exception.args[0])
+        field = CardNumberField()
+
+        with self.assertRaises(forms.ValidationError) as e:
+            field.clean('1234')
+        self.assertEqual('The credit card number you entered is invalid.', e.exception.args[0])
+
+        with self.assertRaises(forms.ValidationError) as e:
+            field.clean('')
+        self.assertEqual('Please enter a credit card number.', e.exception.args[0])

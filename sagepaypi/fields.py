@@ -28,7 +28,7 @@ class CardNumberField(forms.CharField):
 
     def clean(self, value):
         value = value.replace(' ', '').replace('-', '')
-        if self.required and not value:
+        if not value and self.required:
             raise forms.ValidationError(self.error_messages['required'])
         if value and not re.match('(?:%s)' % '|'.join(CREDIT_CARD_RE), value):
             raise forms.ValidationError(self.error_messages['invalid'])
@@ -68,8 +68,14 @@ class CardExpiryDateField(forms.MultiValueField):
         if 'initial' not in kwargs:
             kwargs['initial'] = today
 
-        months = [(x, '%02d (%s)' % (x, date(today.year, x, 1).strftime('%b'))) for x in range(1, 13)]
-        years = [(x, x) for x in range(today.year, today.year + 15)]
+        months = [
+            (x, '%02d (%s)' % (x, date(today.year, x, 1).strftime('%b')))
+            for x in range(1, 13)
+        ]
+        years = [
+            (x, x)
+            for x in range(today.year, today.year + 15)
+        ]
 
         fields = (
             forms.ChoiceField(choices=months, error_messages={'invalid': error_messages['invalid_month']}),
@@ -82,7 +88,7 @@ class CardExpiryDateField(forms.MultiValueField):
 
     def clean(self, value):
         expiry_date = super().clean(value)
-        if date.today() > expiry_date:
+        if expiry_date and date.today() > expiry_date:
             raise forms.ValidationError(self.error_messages['date_passed'])
         return expiry_date
 
