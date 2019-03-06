@@ -265,6 +265,10 @@ class Transaction(models.Model):
         If the cardholder was able to successfully authenticate, the status will be 'Authenticated'.
         """
 
+        if not self.transaction_id:
+            err = _('transaction is missing a transaction_id')
+            raise InvalidTransactionStatus(err)
+
         self.pares = pares
 
         gateway = SagepayGateway()
@@ -279,7 +283,6 @@ class Transaction(models.Model):
             self.secure_status = data.get('status')
 
         self.save()
-
         self.get_transaction_outcome()
 
         return self

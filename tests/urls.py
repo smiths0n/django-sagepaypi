@@ -1,7 +1,9 @@
-from django.conf.urls import url, include
-from django.contrib import admin
-
+from django.urls import path, include
+from django.views.generic import TemplateView
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
+    path('sagepay/', include('sagepaypi.urls')),
+    path('secure-post-redirect/<tidb64>/<token>/',
+         TemplateView.as_view(template_name='home.html'),
+         name='secure_post_redirect'),
 ]

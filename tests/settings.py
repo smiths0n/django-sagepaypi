@@ -58,4 +58,4 @@ ROOT_URLCONF = 'tests.urls'
 
 STATIC_URL = '/static/'
 
-LOGIN_URL = reverse_lazy('admin:login')
+SAGEPAYPI_POST_3D_SECURE_REDIRECT_URL = 'home'

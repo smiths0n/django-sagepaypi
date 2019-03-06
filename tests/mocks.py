@@ -83,6 +83,18 @@ def transaction_3d_auth_response(*args, **kwargs):
     }, 202)
 
 
+def transaction_3d_auth_status(*args, **kwargs):
+    if args[0].endswith('3d-secure'):
+        return MockResponse({
+            'status': 'Authenticated'
+        }, 200)
+
+    else:
+        data = GOOD_TRANSACTION_DATA.copy()
+        data['transactionType'] = 'Payment'
+        return MockResponse(data, 200)
+
+
 def abort_instruction_transaction(*args, **kwargs):
     return MockResponse({
         'instructionType': 'abort',
