@@ -1,35 +1,24 @@
 // Form
 // -------------------------------------------------
 
-form h2 {
-    margin-bottom: 3rem;
-}
+form {
 
-form .field-row {
+    button {
+        margin-top: 3rem;
+    }
 
     ul {
         list-style-type: none;
     }
 
-    &.has-error {
-
-        input,
-        select,
-        textarea {
-            border-color: color("red");
-        }
-
-        .errorlist {
-            margin-bottom: 0;
-            float: right;
-            list-style-type: none;
-            color: color("red");
-        }
-
+    .errorlist {
+        color: color("red");
     }
 
-}
-
-form .form-actions {
-    padding-top: 3rem;
+    .helptext {
+        display: block;
+        font-size: 90%;
+        margin-bottom: $generic-margin-bottom;
+        opacity: $muted-opacity;
+    }
 }

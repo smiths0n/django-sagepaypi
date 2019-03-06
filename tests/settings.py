@@ -1,3 +1,5 @@
+from os import environ
+
 from django.urls import reverse_lazy
 
 SECRET_KEY = 'secret'
@@ -15,6 +17,17 @@ INSTALLED_APPS = [
     'tests',
 ]
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'HOST': environ.get('RDS_HOSTNAME'),
+        'PORT': environ.get('RDS_PORT'),
+        'NAME': environ.get('RDS_DB_NAME'),
+        'USER': environ.get('RDS_USERNAME'),
+        'PASSWORD': environ.get('RDS_PASSWORD'),
+    }
+}
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -24,12 +37,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-    }
-}
 
 TEMPLATES = [
     {

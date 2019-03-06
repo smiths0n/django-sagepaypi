@@ -8,7 +8,14 @@ from sagepaypi import __version__
 
 
 install_requires = [
-    'Django>=2,<2.2',
+    'Django>=2',
+    'python-dateutil>=2.6',
+    'requests>=2',
+]
+
+tests_require = [
+    'mock',
+    'pyyaml',
 ]
 
 documentation_extras = [
@@ -37,8 +44,10 @@ setup(
         'sagepaypi'
     ],
     install_requires=install_requires,
+    tests_require=tests_require,
     extras_require={
-        'docs': documentation_extras
+        'docs': documentation_extras,
+        'tests': tests_require
     },
     include_package_data=True,
     keywords=['django', 'sagepay', 'pi', 'payment', 'accent', 'design'],

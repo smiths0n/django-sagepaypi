@@ -1,0 +1,40 @@
+-
+  model: sagepaypi.customer
+  pk: "47097d4d-9fb1-432f-8fda-15814966d52b"
+  fields: {
+    created_at: "2019-01-01T00:00:00+00:00",
+    first_name: "User",
+    last_name: "One",
+    billing_address_1: "88 The Road",
+    billing_city: "City",
+    billing_country: "GB",
+    billing_postal_code: "88"
+  }
+
+-
+  model: sagepaypi.cardidentifier
+  pk: "67c8ce90-c178-4f78-8176-b87f3ccd52a1"
+  fields: {
+    created_at: "2019-01-01T00:00:00+00:00",
+    customer: "47097d4d-9fb1-432f-8fda-15814966d52b",
+    reusable: true,
+    merchant_session_key: "C72FB248-1926-46D0-9DAA-B9EC0A8F1AF7",
+    card_type: "Visa",
+    last_four_digits: "5559",
+    expiry_date: "1299",
+    card_identifier: "9641440A-E5AC-4191-8CAE-DC6C1AE11BCA",
+    card_identifier_expiry: "2019-01-01T00:10:00+00:00"
+  }
+
+- model: sagepaypi.transaction
+  pk: "ec87ac03-7c34-472c-823b-1950da3568e6"
+  fields: {
+    created_at: "2019-01-01T00:00:00+00:00",
+    updated_at: "2019-01-01T00:00:00+00:00",
+    type: "Payment",
+    card_identifier: "67c8ce90-c178-4f78-8176-b87f3ccd52a1",
+    vendor_tx_code: "13bf01cf-81ef-4312-a3e5-11412e28e58e",
+    amount: 1,
+    currency: "GBP",
+    description: "Payment for goods"
+  }
