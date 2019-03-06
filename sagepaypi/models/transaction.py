@@ -217,9 +217,9 @@ class Transaction(models.Model):
                         'save': self.card_identifier.reusable
                     }
                 },
-                'customerFirstName': self.card_identifier.customer.first_name,
-                'customerLastName': self.card_identifier.customer.last_name,
-                'billingAddress': self.card_identifier.customer.billing_address
+                'customerFirstName': self.card_identifier.first_name,
+                'customerLastName': self.card_identifier.last_name,
+                'billingAddress': self.card_identifier.billing_address
             })
 
         elif self.type in ['Repeat', 'Refund']:

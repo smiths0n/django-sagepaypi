@@ -1,3 +1,2 @@
-from .card import RegisterCardForm
-from .customer import CustomerForm
+from .card import CardIdentifierForm
 from .transaction import Complete3DSecureForm

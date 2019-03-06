@@ -1,6 +1,6 @@
 -
-  model: sagepaypi.customer
-  pk: "47097d4d-9fb1-432f-8fda-15814966d52b"
+  model: sagepaypi.cardidentifier
+  pk: "67c8ce90-c178-4f78-8176-b87f3ccd52a1"
   fields: {
     created_at: "2019-01-01T00:00:00+00:00",
     first_name: "User",
@@ -8,15 +8,7 @@
     billing_address_1: "88 The Road",
     billing_city: "City",
     billing_country: "GB",
-    billing_postal_code: "88"
-  }
-
--
-  model: sagepaypi.cardidentifier
-  pk: "67c8ce90-c178-4f78-8176-b87f3ccd52a1"
-  fields: {
-    created_at: "2019-01-01T00:00:00+00:00",
-    customer: "47097d4d-9fb1-432f-8fda-15814966d52b",
+    billing_postal_code: "88",
     reusable: true,
     merchant_session_key: "C72FB248-1926-46D0-9DAA-B9EC0A8F1AF7",
     card_type: "Visa",

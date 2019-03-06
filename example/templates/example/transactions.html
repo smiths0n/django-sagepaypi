@@ -1,0 +1,22 @@
+{% extends 'example/base.html' %}
+{% load i18n %}
+
+{% block content %}
+    <a class="pull-right" href="{% url 'transaction_create' %}">{% trans 'New Transaction' %}</a>
+    <h2>{% trans 'Transactions' %}</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for object in object_list %}
+            <tr>
+                <td>{{ object }}</td>
+                <td></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
