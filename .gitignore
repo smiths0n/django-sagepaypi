@@ -11,4 +11,4 @@
 /docs/_build/
 /htmlcov/
 /node_modules/
-/sagepaypi.egg-info/
+/django_sagepaypi.egg-info/
