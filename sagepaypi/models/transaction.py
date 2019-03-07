@@ -173,6 +173,12 @@ class Transaction(models.Model):
         return str(self.pk)
 
     def clean(self):
+        """
+        Includes additional validation to ensure:
+
+        - reference_transaction is present when the type is either a "Repeat" or "Refund".
+        """
+
         if self.type == 'Repeat' and not self.reference_transaction:
             raise ValidationError({'reference_transaction': _('Required for a "Repeat" transaction.')})
 
@@ -181,13 +187,16 @@ class Transaction(models.Model):
 
     def get_tokens(self):
         """
-        Returns a tuple similar to django's password reset token.
+        Get transaction tokens.
 
         Can be used in urls to get the transaction. It will be valid for the
         number of days defined in SAGEPAYPI_TOKEN_URL_DAYS_VALID and is only valid until
-        the transaction has been update.
+        the transaction has been updated.
 
-        Primarily used in the return 3d secure url sent to Sage Pay.
+        Primarily used to generate a TermURL that Sage Pay will redirect to after 3d secure login.
+
+        :returns: Returns a tuple of base64 encoded string of the transaction id and a token that
+            will be valid for limited period for this transaction, similar to django's password reset token.
         """
 
         tidb64 = urlsafe_base64_encode(force_bytes(self.pk))
@@ -197,6 +206,8 @@ class Transaction(models.Model):
     def submit_transaction(self):
         """
         Submit's the transaction to Sage Pay and saves the response.
+
+        :returns: the updated transaction instance.
         """
 
         gateway = SagepayGateway()
@@ -261,8 +272,16 @@ class Transaction(models.Model):
     def get_3d_secure_status(self, pares):
         """
         Get's the result of the 3d secure login to Sage Pay.
+
         User must have already been redirected to Sage Pay to login and redirected back to the site.
         If the cardholder was able to successfully authenticate, the status will be 'Authenticated'.
+
+        :param pares: A Base64 encoded, encrypted message sent back by the issuing bank to your TermUrl
+            at the end of the 3-D Secure authentication process. See Sage Pay docs.
+
+        :raises InvalidTransactionStatus: if the transaction is not in a valid state to process.
+
+        :returns: the updated transaction instance.
         """
 
         if not self.transaction_id:
@@ -292,7 +311,12 @@ class Transaction(models.Model):
     def get_transaction_outcome(self):
         """
         Get's the outcome of a transaction from Sage Pay.
+
         Must have a valid transaction_id to process.
+
+        :raises InvalidTransactionStatus: if the transaction is not in a valid state to process.
+
+        :returns: the updated transaction instance.
         """
 
         if not self.transaction_id:
@@ -328,6 +352,10 @@ class Transaction(models.Model):
         You can only either request a release or abort of a deferred payment once.
         After 30 days Sage Pay will auto abort the transaction and you will be required
         to make another transaction with the card holder if you still require the funds.
+
+        :raises InvalidTransactionStatus: if the transaction is not in a valid state to process.
+
+        :returns: the updated transaction instance.
         """
 
         if not self.transaction_id:
@@ -374,6 +402,10 @@ class Transaction(models.Model):
         This has to be completed within 30 days of the creation date.
         You can only either request a release or abort of a deferred payment once.
         After 30 days Sage Pay will auto abort the transaction if no instruction has been made.
+
+        :raises InvalidTransactionStatus: if the transaction is not in a valid state to process.
+
+        :returns: the updated transaction instance.
         """
 
         if not self.transaction_id:
@@ -420,6 +452,10 @@ class Transaction(models.Model):
         This has to be completed on the same calendar day as the original transaction.
         You can only void a transaction that has an Ok status.
         You cannot void a Deferred transaction that has been aborted.
+
+        :raises InvalidTransactionStatus: if the transaction is not in a valid state to process.
+
+        :returns: the updated transaction instance.
         """
 
         if not self.transaction_id:
@@ -463,7 +499,12 @@ class Transaction(models.Model):
         To repeat a transaction it must have a reusable card identifier, have been successful,
         not void and if deferred it must have been released.
 
-        Pass in kwargs to use as defaults for the repeat transaction.
+        :param kwargs: Pass any defaults for the repeat transaction,
+            ie {'amount': 1, 'description': 'Repeat of payment'}
+
+        :raises InvalidTransactionStatus: if the transaction is not in a valid state to process.
+
+        :returns: the new transaction instance.
         """
 
         if not self.transaction_id:
@@ -518,7 +559,12 @@ class Transaction(models.Model):
         You can perform multiple refunds on a single transaction as long
         as the sum of the amounts does not exceed the original transaction.
 
-        Pass in kwargs to use as defaults for the refund transaction.
+        :param kwargs: Pass any defaults for the refund transaction,
+            ie {'amount': 1, 'description': 'Refund of payment'}
+
+        :raises InvalidTransactionStatus: if the transaction is not in a valid state to process.
+
+        :returns: the new transaction instance.
         """
 
         if not self.transaction_id:

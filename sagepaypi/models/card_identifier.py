@@ -88,6 +88,13 @@ class CardIdentifier(models.Model):
         return str(self.pk)
 
     def clean(self):
+        """
+        Includes additional validation to ensure:
+
+        - billing_postal_code is present when billing_country is IE.
+        - billing_state is present when billing_country is US.
+        """
+
         errors = {}
 
         # post code is required when country is not IE
