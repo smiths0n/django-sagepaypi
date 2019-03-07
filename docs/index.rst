@@ -8,6 +8,9 @@ A gateway to submit payment to SagePayPI.
    :caption: Content
 
    installation
+   payments
+   refunds
+   voiding
    settings
    model_reference
    contributors
