@@ -1,4 +1,5 @@
 from django.db import models
+from django.template import Context, Template
 from django.test import TestCase
 
 
@@ -6,6 +7,11 @@ class AppTestCase(TestCase):
 
     def get_field(self, modelClass, name):
         return modelClass._meta.get_field(name)
+
+    def render_template(self, string, context=None):
+        context = context or {}
+        context = Context(context)
+        return Template(string).render(context)
 
     _non_blankable_fields = [
         models.BooleanField
