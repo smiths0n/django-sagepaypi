@@ -55,8 +55,24 @@ def card_identifier_response(*args, **kwargs):
             'expiry': '2015-06-16T10:46:23.693+01:00',
             'cardType': 'Visa'
         }, 201)
-    else:
-        return
+
+
+def card_identifier_failed_response(*args, **kwargs):
+    if args[0].endswith('merchant-session-keys'):
+        return MockResponse({
+            'merchantSessionKey': 'test-identifier',
+            'expiry': '2015-06-16T10:46:23.693+01:00'
+        }, 201)
+    elif args and args[0].endswith('card-identifiers'):
+        return MockResponse({
+            'errors': [
+                {'property': 'cardDetails.cardholderName', 'clientMessage': 'Error cardholderName', 'code': 1},
+                {'property': 'cardDetails.cardNumber', 'clientMessage': 'Error cardNumber', 'code': 1},
+                {'property': 'cardDetails.expiryDate', 'clientMessage': 'Error expiryDate', 'code': 1},
+                {'property': 'cardDetails.securityCode', 'clientMessage': 'Error securityCode', 'code': 1},
+                {'property': 'unknown.property', 'clientMessage': 'Unknown property error', 'code': 1}
+            ]
+        }, 422)
 
 
 def gone_response(*args, **kwargs):

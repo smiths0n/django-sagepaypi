@@ -4,7 +4,7 @@ import dateutil
 import mock
 
 from sagepaypi.forms import CardIdentifierForm
-from tests.mocks import card_identifier_response
+from tests.mocks import card_identifier_response, card_identifier_failed_response
 from tests.test_case import AppTestCase
 
 
@@ -86,5 +86,16 @@ class TestForm(AppTestCase):
         self.assertEqual(form.instance.card_type, '')
         self.assertIsNone(form.instance.card_identifier_expiry)
 
-    def test_correct_errors_from_sagepay_are_pushed_in_form_errors(self):
-        self.skipTest('')
+    @mock.patch('sagepaypi.gateway.requests.post', side_effect=card_identifier_failed_response)
+    def test_correct_errors_from_sagepay_are_pushed_in_form_errors(self, mock_post):
+        form = CardIdentifierForm(self.data)
+
+        self.assertFalse(form.is_valid())
+
+        self.assertDictEqual(form.errors, {
+            '__all__': ['Unknown property error'],
+            'card_holder_name': ['Error cardholderName'],
+            'card_number': ['Error cardNumber'],
+            'card_expiry_date': ['Error expiryDate'],
+            'card_security_code': ['Error securityCode']
+        })

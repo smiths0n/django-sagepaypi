@@ -1,7 +1,6 @@
 import dateutil
 
 from django import forms
-from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from sagepaypi.gateway import SagepayGateway, SagepayHttpResponse
@@ -79,9 +78,31 @@ class CardIdentifierForm(forms.ModelForm):
                 self.instance.card_identifier_expiry = dateutil.parser.parse(data['expiry'])
                 self.instance.card_type = data['cardType']
 
+            elif response.status_code == SagepayHttpResponse.HTTP_422:
+                # add any errors relating to the fields filled in
+                # and map them to form field properties
+                error_field_mappings = {
+                    'cardDetails.cardholderName': 'card_holder_name',
+                    'cardDetails.cardNumber': 'card_number',
+                    'cardDetails.expiryDate': 'card_expiry_date',
+                    'cardDetails.securityCode': 'card_security_code',
+                }
+                errors = data.get('errors')
+                if errors and isinstance(errors, list):
+                    for error in errors:
+                        prop = error.get('property')
+                        msg = error.get('clientMessage')
+                        if prop and msg and prop in error_field_mappings:
+                            # the prop is in the mapping so add the error to the field
+                            self.add_error(error_field_mappings[prop], msg)
+                        elif msg:
+                            # if not add the error to the NON_FIELD_ERRORS
+                            self.add_error(None, msg)
+
             else:
-                # TODO: process actual errors from sagepay and show in form
-                raise ValidationError('Oops! Something went wrong.')
+                # something unexpected has happened
+                err = _('Something went wrong at sagepay, Please check the card details and try again.')
+                self.add_error(None, err)
 
         return self.cleaned_data
 
