@@ -1,4 +1,5 @@
 import dateutil
+
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
@@ -15,7 +16,7 @@ class CardIdentifierForm(forms.ModelForm):
     card_security_code = CardCVCodeField()
 
     reusable = forms.BooleanField(
-        label=_('Save card details for future payments'),
+        label=_('Save these card details for future payments'),
         required=False
     )
 
@@ -37,35 +38,59 @@ class CardIdentifierForm(forms.ModelForm):
         ]
         model = CardIdentifier
 
-    def save(self, commit=True):
-        instance = super().save(commit=False)
+    def clean(self):
+        """
+        Here we are overriding the clean method in the form to get a new
+        card identifier with Sage Pay. If it fails then it will get stopped
+        via form.is_valid().
+
+        This may not be the best approach but if feels better than handling
+        a validation error after form.is_valid() has already been relorted as
+        successful.
+        """
+
+        super().clean()
 
         gateway = SagepayGateway()
 
-        post_data = {
-            'cardDetails': {
-                'cardholderName': self.cleaned_data['card_holder_name'],
-                'cardNumber': self.cleaned_data['card_number'],
-                'expiryDate': self.cleaned_data['card_expiry_date'].strftime('%m%y'),
-                'securityCode': self.cleaned_data['card_security_code'],
+        card_holder_name = self.cleaned_data.get('card_holder_name')
+        card_number = self.cleaned_data.get('card_number')
+        card_expiry_date = self.cleaned_data.get('card_expiry_date')
+        card_security_code = self.cleaned_data.get('card_security_code')
+
+        if all([card_holder_name, card_number, card_expiry_date, card_security_code]):
+            # submit new card to Sage Pay only if all fields are clean
+            data = {
+                'cardDetails': {
+                    'cardholderName': card_holder_name,
+                    'cardNumber': card_number,
+                    'expiryDate': card_expiry_date.strftime('%m%y'),
+                    'securityCode': card_security_code,
+                }
             }
-        }
 
-        response, merchant_session_key = gateway.create_card_identifier(post_data)
+            response, merchant_session_key = gateway.create_card_identifier(data)
 
-        data = response.json()
+            data = response.json()
 
-        if response.status_code == SagepayHttpResponse.HTTP_201:
-            instance.merchant_session_key = merchant_session_key
-            instance.card_identifier = data['cardIdentifier']
-            instance.card_identifier_expiry = dateutil.parser.parse(data['expiry'])
-            instance.card_type = data['cardType']
-            instance.last_four_digits = self.cleaned_data['card_number'][-4:]
-            instance.expiry_date = self.cleaned_data['card_expiry_date'].strftime('%m%y')
+            if response.status_code == SagepayHttpResponse.HTTP_201:
+                self.instance.merchant_session_key = merchant_session_key
+                self.instance.card_identifier = data['cardIdentifier']
+                self.instance.card_identifier_expiry = dateutil.parser.parse(data['expiry'])
+                self.instance.card_type = data['cardType']
 
-            instance.save(commit)
+            else:
+                # TODO: process actual errors from sagepay and show in form
+                raise ValidationError('Oops! Something went wrong.')
 
-        else:
-            raise ValidationError(data)
+        return self.cleaned_data
 
-        return instance
+    def save(self, commit=True):
+        """
+        Set additional required instance attributes before save.
+        """
+
+        self.instance.last_four_digits = self.cleaned_data['card_number'][-4:]
+        self.instance.expiry_date = self.cleaned_data['card_expiry_date'].strftime('%m%y')
+
+        return super().save(commit)

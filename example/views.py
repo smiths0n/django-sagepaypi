@@ -28,36 +28,32 @@ class TransactionCreateView(SessionWizardView):
     def done(self, form_list, form_dict, **kwargs):
         transaction = form_dict['transaction'].save(commit=False)
 
-        try:
-            card_identifier = form_dict['card'].save()
+        card_identifier = form_dict['card'].save()
 
-            # for new cards payment type is Payment
-            transaction.type = 'Payment'
-            transaction.card_identifier = card_identifier
-            transaction.description = 'Payment for goods'
-            transaction.save()
+        # for new cards payment type is Payment
+        transaction.type = 'Payment'
+        transaction.card_identifier = card_identifier
+        transaction.description = 'Payment for goods'
+        transaction.save()
 
-            transaction.submit_transaction()
+        transaction.submit_transaction()
 
-            if transaction.requires_3d_secure:
-                return render(
-                    self.request,
-                    'example/3d_secure_redirect.html',
-                    {'transaction': transaction}
-                )
-
-            transaction.refresh_from_db()
-            tidb64, token = transaction.get_tokens()
-
-            return HttpResponseRedirect(
-                reverse(
-                    get_setting('POST_3D_SECURE_REDIRECT_URL'),
-                    kwargs={'tidb64': tidb64.decode('utf-8'), 'token': token}
-                )
+        if transaction.requires_3d_secure:
+            return render(
+                self.request,
+                'example/3d_secure_redirect.html',
+                {'transaction': transaction}
             )
 
-        except ValidationError:
-            self.render_goto_step('card')
+        transaction.refresh_from_db()
+        tidb64, token = transaction.get_tokens()
+
+        return HttpResponseRedirect(
+            reverse(
+                get_setting('POST_3D_SECURE_REDIRECT_URL'),
+                kwargs={'tidb64': tidb64.decode('utf-8'), 'token': token}
+            )
+        )
 
 
 class TransactionStatusView(DetailView):

@@ -43,6 +43,22 @@ GOOD_TRANSACTION_DATA = {
 }
 
 
+def card_identifier_response(*args, **kwargs):
+    if args[0].endswith('merchant-session-keys'):
+        return MockResponse({
+            'merchantSessionKey': 'test-identifier',
+            'expiry': '2015-06-16T10:46:23.693+01:00'
+        }, 201)
+    elif args and args[0].endswith('card-identifiers'):
+        return MockResponse({
+            'cardIdentifier': 'C6F92981-8C2D-457A-AA1E-16EBCD6D3AC6',
+            'expiry': '2015-06-16T10:46:23.693+01:00',
+            'cardType': 'Visa'
+        }, 201)
+    else:
+        return
+
+
 def gone_response(*args, **kwargs):
     return MockResponse({}, 500)
 
