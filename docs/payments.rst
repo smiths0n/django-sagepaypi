@@ -1,3 +1,5 @@
+.. _payments-using-tokens:
+
 Payment using tokens
 ====================
 
@@ -6,8 +8,8 @@ in the form of a token (a reusable card identifier) and use it for future purcha
 
 .. _creating-a-card-identifier:
 
-Creating a card identifiers
----------------------------
+Creating a card identifier
+--------------------------
 
 Before you can submit a payment to Sage Pay you need to create a reusable card identifier.
 This consists of capturing details of the payee such as name, card details and address of the card holder.

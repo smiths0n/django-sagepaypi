@@ -9,6 +9,7 @@ A gateway to submit payment to SagePayPI.
 
    installation
    payments
+   3d-secure
    refunds
    voids
    repeats

@@ -40,7 +40,7 @@ class TransactionCreateView(SessionWizardView):
         if transaction.requires_3d_secure:
             return render(
                 self.request,
-                'example/3d_secure_redirect.html',
+                'sagepaypi/3d_secure_redirect_form.html',
                 {'transaction': transaction}
             )
 
