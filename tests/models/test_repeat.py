@@ -35,21 +35,35 @@ class TestRepeatTransaction(AppTestCase):
             'cannot repeat an unsuccessful transaction'
         )
 
-    def test_error__for_deferred_and_refund(self):
+    def test_error__for_deferred_not_released(self):
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
         transaction.transaction_id = 'dummy-transaction-id'
         transaction.status_code = '0000'
+        transaction.type = 'Deferred'
+        transaction.instruction = ''
 
-        for tr_type in ['Deferred', 'Refund']:
-            transaction.type = tr_type
+        with self.assertRaises(InvalidTransactionStatus) as e:
+            transaction.repeat()
 
-            with self.assertRaises(InvalidTransactionStatus) as e:
-                transaction.repeat()
+        self.assertEqual(
+            e.exception.args[0],
+            'can only repeat a successful Payment, Repeat or a released Deferred transaction'
+        )
 
-            self.assertEqual(
-                e.exception.args[0],
-                'can only repeat a Payment or Repeat transaction'
-            )
+    def test_error__for_deferred_abort(self):
+        transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
+        transaction.transaction_id = 'dummy-transaction-id'
+        transaction.status_code = '0000'
+        transaction.type = 'Deferred'
+        transaction.instruction = 'abort'
+
+        with self.assertRaises(InvalidTransactionStatus) as e:
+            transaction.repeat()
+
+        self.assertEqual(
+            e.exception.args[0],
+            'can only repeat a successful Payment, Repeat or a released Deferred transaction'
+        )
 
     def test_error__void(self):
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
@@ -120,6 +134,31 @@ class TestRepeatTransaction(AppTestCase):
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
         transaction.transaction_id = 'dummy-transaction-id'
         transaction.type = 'Repeat'
+        transaction.status_code = '0000'
+
+        repeat = transaction.repeat()
+
+        json = mock_post().json()
+
+        # expected
+        self.assertEqual(repeat.type, 'Repeat')
+        self.assertEqual(repeat.reference_transaction, transaction)
+        self.assertEqual(repeat.amount, transaction.amount)
+        self.assertEqual(repeat.description, transaction.description)
+
+        self.assertEqual(repeat.status_code, json['statusCode'])
+        self.assertEqual(repeat.status, json['status'])
+        self.assertEqual(repeat.status_detail, json['statusDetail'])
+        self.assertEqual(repeat.transaction_id, json['transactionId'])
+        self.assertEqual(repeat.retrieval_reference, json['retrievalReference'])
+        self.assertEqual(repeat.bank_authorisation_code, json['bankAuthorisationCode'])
+
+    @mock.patch('sagepaypi.gateway.requests.post', side_effect=payment_created_response)
+    def test_successful_deferred__release(self, mock_post):
+        transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
+        transaction.transaction_id = 'dummy-transaction-id'
+        transaction.type = 'Deferred'
+        transaction.instruction = 'release'
         transaction.status_code = '0000'
 
         repeat = transaction.repeat()

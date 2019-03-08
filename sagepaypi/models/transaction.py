@@ -476,7 +476,8 @@ class Transaction(models.Model):
         """
         Repeat a transaction
 
-        To repeat a transaction it must have been a successful Payment or Repeat.
+        To repeat a transaction it must have been a successful
+        Payment, Repeat or a released Deferred transaction and not void.
 
         :param kwargs: Pass any defaults for the repeat transaction,
             ie {'amount': 1, 'description': 'Repeat of payment'}
@@ -494,8 +495,12 @@ class Transaction(models.Model):
             err = _('cannot repeat an unsuccessful transaction')
             raise InvalidTransactionStatus(err)
 
-        if self.type not in ['Payment', 'Repeat']:
-            err = _('can only repeat a Payment or Repeat transaction')
+        if self.type not in ['Payment', 'Repeat', 'Deferred']:
+            err = _('can only repeat a successful Payment, Repeat or a released Deferred transaction')
+            raise InvalidTransactionStatus(err)
+
+        if self.type == 'Deferred' and self.instruction != 'release':
+            err = _('can only repeat a successful Payment, Repeat or a released Deferred transaction')
             raise InvalidTransactionStatus(err)
 
         if self.instruction == 'void':
