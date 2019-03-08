@@ -219,7 +219,7 @@ class Transaction(models.Model):
             'description': self.description
         }
 
-        if self.type == 'Payment' or self.type == 'Deferred':
+        if self.type in ['Payment', 'Deferred']:
             new_transaction.update({
                 'paymentMethod': {
                     'card': {
@@ -450,8 +450,7 @@ class Transaction(models.Model):
         Void a transaction.
 
         This has to be completed on the same calendar day as the original transaction.
-        You can only void a transaction that has an Ok status.
-        You cannot void a Deferred transaction that has been aborted.
+        You can only void a "Payment" or "Repeat" transaction that has an Ok status.
 
         :raises InvalidTransactionStatus: if the transaction is not in a valid state to process.
 
@@ -466,8 +465,8 @@ class Transaction(models.Model):
             err = _('cannot void an unsuccessful transaction')
             raise InvalidTransactionStatus(err)
 
-        if self.instruction == 'abort':
-            err = _('cannot void an aborted transaction')
+        if self.type not in ['Payment', 'Refund']:
+            err = _('can only void a payment or refund')
             raise InvalidTransactionStatus(err)
 
         if self.days_since_created > 0:
@@ -602,7 +601,7 @@ class Transaction(models.Model):
 
         return refund
 
-    repeat.alters_data = True
+    refund.alters_data = True
 
     @property
     def days_since_created(self):

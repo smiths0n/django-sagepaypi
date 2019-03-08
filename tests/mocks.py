@@ -136,6 +136,13 @@ def abort_instruction_transaction(*args, **kwargs):
 
 def release_instruction_transaction(*args, **kwargs):
     return MockResponse({
+        'instructionType': 'release',
+        'date': '2016-09-08T11:27:34.728+01:00'
+    }, 201)
+
+
+def void_instruction_transaction(*args, **kwargs):
+    return MockResponse({
         'instructionType': 'void',
         'date': '2016-09-08T11:27:34.728+01:00'
     }, 201)

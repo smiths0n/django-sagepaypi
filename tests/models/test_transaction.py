@@ -17,7 +17,8 @@ from tests.mocks import (
     refund_created_response,
     release_instruction_transaction,
     transaction_3d_auth_response,
-    transaction_outcome_response
+    transaction_outcome_response,
+    void_instruction_transaction
 )
 from tests.test_case import AppTestCase
 
@@ -511,25 +512,26 @@ class TestVoidTransaction(AppTestCase):
             'cannot void an unsuccessful transaction'
         )
 
-    def test_error__aborted(self):
+    def test_error__invalid_type(self):
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
         transaction.transaction_id = 'dummy-transaction-id'
-        transaction.type = 'Deferred'
         transaction.status_code = '0000'
-        transaction.instruction = 'abort'
 
-        with self.assertRaises(InvalidTransactionStatus) as e:
-            transaction.void()
+        for tr_type in ['Deferred', 'Repeat']:
+            transaction.type = tr_type
 
-        self.assertEqual(
-            e.exception.args[0],
-            'cannot void an aborted transaction'
-        )
+            with self.assertRaises(InvalidTransactionStatus) as e:
+                transaction.void()
+
+            self.assertEqual(
+                e.exception.args[0],
+                'can only void a payment or refund'
+            )
 
     def test_error__instruction_too_late(self):
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
         transaction.transaction_id = 'dummy-transaction-id'
-        transaction.type = 'Deferred'
+        transaction.type = 'Payment'
         transaction.status_code = '0000'
         transaction.created_at = transaction.utc_now() - timedelta(days=1)
 
@@ -541,11 +543,11 @@ class TestVoidTransaction(AppTestCase):
             'can only void transaction that was created today'
         )
 
-    @mock.patch('sagepaypi.gateway.requests.post', side_effect=abort_instruction_transaction)
+    @mock.patch('sagepaypi.gateway.requests.post', side_effect=void_instruction_transaction)
     def test_successful_instruction(self, mock_post):
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
         transaction.transaction_id = 'dummy-transaction-id'
-        transaction.type = 'Deferred'
+        transaction.type = 'Payment'
         transaction.status_code = '0000'
         transaction.created_at = transaction.utc_now()
 
