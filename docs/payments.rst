@@ -4,8 +4,10 @@ Payment using tokens
 The Sage Pay Token functionality allows you to save the card details of your customer
 in the form of a token (a reusable card identifier) and use it for future purchases.
 
-Card identifiers
-----------------
+.. _creating-a-card-identifier:
+
+Creating a card identifiers
+---------------------------
 
 Before you can submit a payment to Sage Pay you need to create a reusable card identifier.
 This consists of capturing details of the payee such as name, card details and address of the card holder.
@@ -32,8 +34,7 @@ and validate everything you need to process a new payment.
            'card_number': '4929000005559',\
            'card_expiry_date_0': '12',\
            'card_expiry_date_1': '2025',\
-           'card_security_code': '123',\
-           'reusable': 'on'\
+           'card_security_code': '123'\
         }
     >>> form = CardIdentifierForm(data)
 
@@ -76,7 +77,6 @@ Now that you have created a card identifier you can create your payment.
     >>> transaction.save()
 
     >>> transaction.submit_transaction()
-    <Transaction: ecdadf86-7899-4c6b-9f76-71ca3077174c>
 
     >>> print(transaction.status)
     Ok

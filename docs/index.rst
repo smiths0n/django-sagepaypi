@@ -11,6 +11,7 @@ A gateway to submit payment to SagePayPI.
    payments
    refunds
    voids
+   deferred
    settings
    model_reference
    contributors

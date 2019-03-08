@@ -32,7 +32,6 @@ To perform a void:
 .. code-block:: bash
 
     >>> transaction.void()
-    <Transaction: ecdadf86-7899-4c6b-9f76-71ca3077174c>
 
 Errors
 ------
