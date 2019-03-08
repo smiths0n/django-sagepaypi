@@ -45,64 +45,77 @@ class Transaction(models.Model):
         primary_key=True
     )
     created_at = models.DateTimeField(
+        _('Created at'),
         auto_now_add=True
     )
     updated_at = models.DateTimeField(
+        _('Updated at'),
         auto_now=True
     )
     type = models.CharField(
+        _('Type'),
         max_length=8,
         choices=get_transaction_type_choices(),
         help_text=_('Type of transaction, e.g "Payment".')
     )
     card_identifier = models.ForeignKey(
         'sagepaypi.CardIdentifier',
+        verbose_name=_('Card identifier'),
         on_delete=models.PROTECT,
         related_name='transactions',
         help_text=_('The card identifier used for the transaction.')
     )
     vendor_tx_code = models.CharField(
+        _('Vendor tx code'),
         max_length=40,
         unique=True,
         default=uuid.uuid4,
         help_text=_('The unique vendor tx code used for the transaction.')
     )
     amount = models.IntegerField(
+        _('Amount'),
         help_text=_('The amount charged in the smallest currency unit. e.g 100 pence to charge £1.00.')
     )
     currency = models.CharField(
+        _('Currency'),
         max_length=3,
         choices=get_currency_choices(),
         help_text=_('Currency of transaction, e.g "Pounds Sterling".')
     )
     description = models.TextField(
+        _('Description'),
         help_text=_('Description used against the transaction on Sage Pay.')
     )
     status_code = models.CharField(
+        _('Status code'),
         max_length=4,
         null=True,
         blank=True,
         help_text=_('The current status code of the transaction on Sage Pay.')
     )
     status = models.CharField(
+        _('Status'),
         max_length=50,
         null=True,
         blank=True,
         help_text=_('The current status of the transaction on Sage Pay.')
     )
     status_detail = models.CharField(
+        _('Status detail'),
         max_length=255,
         null=True,
         blank=True,
         help_text=_('The current status detail of the transaction on Sage Pay.')
     )
     transaction_id = models.CharField(
+        _('Transaction id'),
         max_length=36,
         null=True,
         blank=True,
         help_text=_('The transaction id on Sage Pay.')
     )
     retrieval_reference = models.CharField(
+        _('Retrieval reference'),
         max_length=20,
         null=True,
         blank=True,
@@ -112,17 +125,20 @@ class Transaction(models.Model):
         )
     )
     bank_authorisation_code = models.CharField(
+        _('Bank authorisation code'),
         max_length=20,
         null=True,
         blank=True,
         help_text=_('The authorisation code returned from the merchant bank.')
     )
     acs_url = models.URLField(
+        _('Acs url'),
         null=True,
         blank=True,
         help_text=_('The url to redirect to for a transaction that requires 3-D authentication.')
     )
     pareq = models.TextField(
+        _('Pareq'),
         null=True,
         blank=True,
         help_text=_(
@@ -131,6 +147,7 @@ class Transaction(models.Model):
         )
     )
     pares = models.TextField(
+        _('Pares'),
         null=True,
         blank=True,
         help_text=_(
@@ -139,12 +156,14 @@ class Transaction(models.Model):
         )
     )
     secure_status = models.CharField(
+        _('Secure status'),
         max_length=50,
         null=True,
         blank=True,
         help_text=_('The 3-D Secure status of the transaction, if applied.')
     )
     instruction = models.CharField(
+        _('Instruction'),
         max_length=10,
         null=True,
         blank=True,
@@ -152,12 +171,14 @@ class Transaction(models.Model):
         help_text=_('The instruction to either release, abort or void a transaction.')
     )
     instruction_created_at = models.DateTimeField(
+        _('Instruction created at'),
         null=True,
         blank=True,
         help_text=_('The date in which the instruction was requested.')
     )
     reference_transaction = models.ForeignKey(
         'self',
+        verbose_name=_('Reference transaction'),
         on_delete=models.CASCADE,
         null=True,
         blank=True,
@@ -604,19 +625,24 @@ class Transaction(models.Model):
 class TransactionResponse(models.Model):
     transaction = models.ForeignKey(
         'sagepaypi.Transaction',
+        verbose_name=_('Transaction'),
         on_delete=models.CASCADE,
         related_name='responses',
     )
     created_at = models.DateTimeField(
+        _('Created at'),
         auto_now_add=True
     )
     step = models.CharField(
+        _('Step'),
         max_length=100
     )
     status_code = models.IntegerField(
+        _('Status code'),
         null=True
     )
     data = JSONField(
+        _('Data'),
         default=dict
     )
 

@@ -14,38 +14,46 @@ class CardIdentifier(models.Model):
         primary_key=True
     )
     created_at = models.DateTimeField(
+        _('Created at'),
         auto_now_add=True
     )
 
     first_name = models.CharField(
+        _('First name'),
         max_length=100
     )
     last_name = models.CharField(
+        _('Last name'),
         max_length=100
     )
     billing_address_1 = models.CharField(
+        _('Billing address 1'),
         max_length=255
     )
     billing_address_2 = models.CharField(
+        _('Billing address 2'),
         max_length=255,
         null=True,
         blank=True
     )
     billing_city = models.CharField(
+        _('Billing city'),
         max_length=255
     )
     billing_country = models.CharField(
+        _('Billing country'),
         max_length=2,
         choices=get_country_choices()
     )
     billing_postal_code = models.CharField(
-        _('Postal/Zip Code'),
+        _('Billing Postal/Zip Code'),
         max_length=12,
         null=True,
         blank=True,
         help_text=_('Required for all countries except Ireland')
     )
     billing_state = models.CharField(
+        _('Billing state'),
         max_length=2,
         null=True,
         blank=True,
@@ -54,26 +62,32 @@ class CardIdentifier(models.Model):
     )
 
     merchant_session_key = models.CharField(
+        _('Merchant session key'),
         max_length=100,
         help_text=_('The merchant session key that was used to register the card identifier with Sage Pay.')
     )
     card_type = models.CharField(
+        _('Card type'),
         max_length=255,
         help_text=_('The type of card reported by Sage Pay.')
     )
     last_four_digits = models.CharField(
+        _('Last four digits'),
         max_length=4,
         help_text=_('The last four digits of the card.')
     )
     expiry_date = models.CharField(
+        _('Expiry date'),
         max_length=4,
         help_text=_('The expiry date of the card, format "MMYY".')
     )
     card_identifier = models.CharField(
+        _('Card identifier'),
         max_length=100,
         help_text=_('The card identifier key sent back from Sage Pay.')
     )
     card_identifier_expiry = models.DateTimeField(
+        _('Card identifier expiry'),
         help_text=_(
             'The datetime in which a transaction must be submitted to Sage Pay by '
             'before the card identifier becomes invalid.'
