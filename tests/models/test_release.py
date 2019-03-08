@@ -69,6 +69,22 @@ class TestReleaseTransaction(AppTestCase):
             'can only release a transaction that was created within 30 days'
         )
 
+    def test_error__instruction_amount_greater_than_original(self):
+        transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
+        transaction.transaction_id = 'dummy-transaction-id'
+        transaction.type = 'Deferred'
+        transaction.status_code = '0000'
+        transaction.amount = 100
+        transaction.created_at = transaction.utc_now() - timedelta(days=15)
+
+        with self.assertRaises(InvalidTransactionStatus) as e:
+            transaction.release(amount=101)
+
+        self.assertEqual(
+            e.exception.args[0],
+            'can only release up to the original amount and no more'
+        )
+
     @mock.patch('sagepaypi.gateway.requests.post', side_effect=release_instruction_transaction)
     def test_successful_instruction(self, mock_post):
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
@@ -78,6 +94,23 @@ class TestReleaseTransaction(AppTestCase):
         transaction.created_at = transaction.utc_now() - timedelta(days=15)
 
         transaction.release()
+
+        json = mock_post().json()
+
+        # expected
+        self.assertEqual(transaction.instruction, json['instructionType'])
+        self.assertEqual(transaction.instruction_created_at, dateutil.parser.parse(json['date']))
+
+    @mock.patch('sagepaypi.gateway.requests.post', side_effect=release_instruction_transaction)
+    def test_successful_instruction__with_amount(self, mock_post):
+        transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
+        transaction.transaction_id = 'dummy-transaction-id'
+        transaction.type = 'Deferred'
+        transaction.status_code = '0000'
+        transaction.amount = 100
+        transaction.created_at = transaction.utc_now() - timedelta(days=15)
+
+        transaction.release(amount=99)
 
         json = mock_post().json()
 

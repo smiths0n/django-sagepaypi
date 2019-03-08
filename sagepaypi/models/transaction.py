@@ -332,7 +332,7 @@ class Transaction(models.Model):
 
     get_transaction_outcome.alters_data = True
 
-    def release(self):
+    def release(self, amount=None):
         """
         Release a deferred transaction.
 
@@ -340,6 +340,8 @@ class Transaction(models.Model):
         You can only either request a release or abort of a deferred payment once.
         After 30 days Sage Pay will auto abort the transaction and you will be required
         to make another transaction with the card holder if you still require the funds.
+
+        :param amount: Specify the amount if you do not want to release the full amount.
 
         :raises InvalidTransactionStatus: if the transaction is not in a valid state to process.
         """
@@ -360,10 +362,14 @@ class Transaction(models.Model):
             err = _('can only release a transaction that was created within 30 days')
             raise InvalidTransactionStatus(err)
 
+        if amount and amount > self.amount:
+            err = _('can only release up to the original amount and no more')
+            raise InvalidTransactionStatus(err)
+
         gateway = SagepayGateway()
         post_data = {
             'instructionType': 'release',
-            'amount': self.amount
+            'amount': amount or self.amount
         }
         response = gateway.submit_transaction_instruction(self.transaction_id, post_data)
 
