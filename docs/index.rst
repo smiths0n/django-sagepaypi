@@ -1,5 +1,5 @@
 Django SagePayPI
-=================
+================
 
 A gateway to submit payment to SagePayPI.
 
@@ -10,7 +10,7 @@ A gateway to submit payment to SagePayPI.
    installation
    payments
    refunds
-   voiding
+   voids
    settings
    model_reference
    contributors

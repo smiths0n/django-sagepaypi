@@ -1,5 +1,5 @@
-Voiding
-=======
+Voids
+=====
 
 Once a transaction has been submitted to Sage Pay and processed through their system
 and has been successfully authorised, the transaction will be sent to the bank for settlement.

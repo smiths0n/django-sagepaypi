@@ -450,7 +450,7 @@ class Transaction(models.Model):
         Void a transaction.
 
         This has to be completed on the same calendar day as the original transaction.
-        You can only void a "Payment" or "Repeat" transaction that has an Ok status.
+        You can only void a "Payment" or "Refund" transaction that has an Ok status.
 
         :raises InvalidTransactionStatus: if the transaction is not in a valid state to process.
 
