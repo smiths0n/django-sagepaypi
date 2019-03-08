@@ -206,8 +206,6 @@ class Transaction(models.Model):
     def submit_transaction(self):
         """
         Submit's the transaction to Sage Pay and saves the response.
-
-        :returns: the updated transaction instance.
         """
 
         gateway = SagepayGateway()
@@ -265,8 +263,6 @@ class Transaction(models.Model):
 
         self.save()
 
-        return self
-
     submit_transaction.alters_data = True
 
     def get_3d_secure_status(self, pares):
@@ -280,8 +276,6 @@ class Transaction(models.Model):
             at the end of the 3-D Secure authentication process. See Sage Pay docs.
 
         :raises InvalidTransactionStatus: if the transaction is not in a valid state to process.
-
-        :returns: the updated transaction instance.
         """
 
         if not self.transaction_id:
@@ -304,8 +298,6 @@ class Transaction(models.Model):
         self.save()
         self.get_transaction_outcome()
 
-        return self
-
     get_3d_secure_status.alters_data = True
 
     def get_transaction_outcome(self):
@@ -315,8 +307,6 @@ class Transaction(models.Model):
         Must have a valid transaction_id to process.
 
         :raises InvalidTransactionStatus: if the transaction is not in a valid state to process.
-
-        :returns: the updated transaction instance.
         """
 
         if not self.transaction_id:
@@ -340,8 +330,6 @@ class Transaction(models.Model):
 
         self.save()
 
-        return self
-
     get_transaction_outcome.alters_data = True
 
     def release(self):
@@ -354,8 +342,6 @@ class Transaction(models.Model):
         to make another transaction with the card holder if you still require the funds.
 
         :raises InvalidTransactionStatus: if the transaction is not in a valid state to process.
-
-        :returns: the updated transaction instance.
         """
 
         if not self.transaction_id:
@@ -391,8 +377,6 @@ class Transaction(models.Model):
 
         self.save()
 
-        return self
-
     release.alters_data = True
 
     def abort(self):
@@ -404,8 +388,6 @@ class Transaction(models.Model):
         After 30 days Sage Pay will auto abort the transaction if no instruction has been made.
 
         :raises InvalidTransactionStatus: if the transaction is not in a valid state to process.
-
-        :returns: the updated transaction instance.
         """
 
         if not self.transaction_id:
@@ -441,8 +423,6 @@ class Transaction(models.Model):
 
         self.save()
 
-        return self
-
     abort.alters_data = True
 
     def void(self):
@@ -453,8 +433,6 @@ class Transaction(models.Model):
         You can only void a "Payment" or "Refund" transaction that has an Ok status.
 
         :raises InvalidTransactionStatus: if the transaction is not in a valid state to process.
-
-        :returns: the updated transaction instance.
         """
 
         if not self.transaction_id:
@@ -486,8 +464,6 @@ class Transaction(models.Model):
             self.instruction_created_at = dateutil.parser.parse(data['date'])
 
         self.save()
-
-        return self
 
     void.alters_data = True
 

@@ -9,4 +9,5 @@ class Complete3DSecureForm(forms.Form):
         super().__init__(*args, **kwargs)
 
     def save(self):
-        return self.transaction.get_3d_secure_status(self.cleaned_data['PaRes'])
+        self.transaction.get_3d_secure_status(self.cleaned_data['PaRes'])
+        return self.transaction
