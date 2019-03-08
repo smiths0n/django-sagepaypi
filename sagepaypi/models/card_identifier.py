@@ -52,10 +52,6 @@ class CardIdentifier(models.Model):
         choices=get_us_state_choices(),
         help_text=_('Required only if country is United States')
     )
-    reusable = models.BooleanField(
-        default=False,
-        help_text=_('Indicates the card identifier can be used in future transactions.')
-    )
 
     merchant_session_key = models.CharField(
         max_length=100,

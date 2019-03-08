@@ -24,8 +24,7 @@ class TestForm(AppTestCase):
             'card_number': '4929000005559',
             'card_expiry_date_0': date.today().month,
             'card_expiry_date_1': date.today().year,
-            'card_security_code': '123',
-            'reusable': 'on'
+            'card_security_code': '123'
         }
 
     @mock.patch('sagepaypi.gateway.requests.post', side_effect=card_identifier_response)
@@ -70,7 +69,6 @@ class TestForm(AppTestCase):
         self.assertEqual(instance.billing_country, 'US')
         self.assertEqual(instance.billing_postal_code, '412')
         self.assertEqual(instance.billing_state, 'AL')
-        self.assertTrue(instance.reusable)
 
     def test_is_not_valid__without_card_details(self):
         data = self.data.copy()

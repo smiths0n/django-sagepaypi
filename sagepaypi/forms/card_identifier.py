@@ -14,11 +14,6 @@ class CardIdentifierForm(forms.ModelForm):
     card_expiry_date = CardExpiryDateField()
     card_security_code = CardCVCodeField()
 
-    reusable = forms.BooleanField(
-        label=_('Save these card details for future payments'),
-        required=False
-    )
-
     class Meta:
         fields = [
             'first_name',
@@ -32,8 +27,7 @@ class CardIdentifierForm(forms.ModelForm):
             'card_holder_name',
             'card_number',
             'card_expiry_date',
-            'card_security_code',
-            'reusable'
+            'card_security_code'
         ]
         model = CardIdentifier
 

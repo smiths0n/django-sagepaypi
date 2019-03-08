@@ -35,21 +35,21 @@ class TestRepeatTransaction(AppTestCase):
             'cannot repeat an unsuccessful transaction'
         )
 
-    def test_error__card_identifier_not_reusable(self):
+    def test_error__for_deferred_and_refund(self):
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
-        transaction.card_identifier.reusable = False
-        transaction.card_identifier.save()
         transaction.transaction_id = 'dummy-transaction-id'
-        transaction.type = 'Payment'
         transaction.status_code = '0000'
 
-        with self.assertRaises(InvalidTransactionStatus) as e:
-            transaction.repeat()
+        for tr_type in ['Deferred', 'Refund']:
+            transaction.type = tr_type
 
-        self.assertEqual(
-            e.exception.args[0],
-            'cannot repeat a transaction without a reusable card identifier'
-        )
+            with self.assertRaises(InvalidTransactionStatus) as e:
+                transaction.repeat()
+
+            self.assertEqual(
+                e.exception.args[0],
+                'can only repeat a Payment or Repeat transaction'
+            )
 
     def test_error__void(self):
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
@@ -64,37 +64,6 @@ class TestRepeatTransaction(AppTestCase):
         self.assertEqual(
             e.exception.args[0],
             'cannot repeat a void transaction'
-        )
-
-    def test_error__deferred_not_released(self):
-        transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
-        transaction.transaction_id = 'dummy-transaction-id'
-        transaction.type = 'Deferred'
-        transaction.status_code = '0000'
-
-        for instruction in ['', 'abort']:
-            transaction.instruction = instruction
-
-            with self.assertRaises(InvalidTransactionStatus) as e:
-                transaction.repeat()
-
-            self.assertEqual(
-                e.exception.args[0],
-                'cannot repeat a deferred transaction that is not released'
-            )
-
-    def test_error__refund(self):
-        transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
-        transaction.transaction_id = 'dummy-transaction-id'
-        transaction.type = 'Refund'
-        transaction.status_code = '0000'
-
-        with self.assertRaises(InvalidTransactionStatus) as e:
-            transaction.repeat()
-
-        self.assertEqual(
-            e.exception.args[0],
-            'cannot repeat a refund transaction'
         )
 
     @mock.patch('sagepaypi.gateway.requests.post', side_effect=payment_created_response)
@@ -152,31 +121,6 @@ class TestRepeatTransaction(AppTestCase):
         transaction.transaction_id = 'dummy-transaction-id'
         transaction.type = 'Repeat'
         transaction.status_code = '0000'
-
-        repeat = transaction.repeat()
-
-        json = mock_post().json()
-
-        # expected
-        self.assertEqual(repeat.type, 'Repeat')
-        self.assertEqual(repeat.reference_transaction, transaction)
-        self.assertEqual(repeat.amount, transaction.amount)
-        self.assertEqual(repeat.description, transaction.description)
-
-        self.assertEqual(repeat.status_code, json['statusCode'])
-        self.assertEqual(repeat.status, json['status'])
-        self.assertEqual(repeat.status_detail, json['statusDetail'])
-        self.assertEqual(repeat.transaction_id, json['transactionId'])
-        self.assertEqual(repeat.retrieval_reference, json['retrievalReference'])
-        self.assertEqual(repeat.bank_authorisation_code, json['bankAuthorisationCode'])
-
-    @mock.patch('sagepaypi.gateway.requests.post', side_effect=payment_created_response)
-    def test_successful_repeat__deferred(self, mock_post):
-        transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
-        transaction.transaction_id = 'dummy-transaction-id'
-        transaction.type = 'Deferred'
-        transaction.status_code = '0000'
-        transaction.instruction = 'release'
 
         repeat = transaction.repeat()
 

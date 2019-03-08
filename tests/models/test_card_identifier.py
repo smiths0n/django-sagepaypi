@@ -65,11 +65,6 @@ class TestModel(AppTestCase):
         self.assertEqual(field.max_length, 2)
         self.assertEqual(field.choices, get_us_state_choices())
 
-    def test_reusable(self):
-        field = self.get_field(CardIdentifier, 'reusable')
-        self.assertModelField(field, models.BooleanField)
-        self.assertFalse(field.default)
-
     def test_merchant_session_key(self):
         field = self.get_field(CardIdentifier, 'merchant_session_key')
         self.assertModelField(field, models.CharField)

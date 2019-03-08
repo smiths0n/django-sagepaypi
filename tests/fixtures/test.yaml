@@ -9,7 +9,6 @@
     billing_city: "City",
     billing_country: "GB",
     billing_postal_code: "88",
-    reusable: true,
     merchant_session_key: "C72FB248-1926-46D0-9DAA-B9EC0A8F1AF7",
     card_type: "Visa",
     last_four_digits: "5559",

@@ -18,7 +18,6 @@ class CardIdentifierAdmin(ReadOnlyAdmin, admin.ModelAdmin):
         'display_text',
         'first_name',
         'last_name',
-        'reusable',
         'created_at'
     ]
 

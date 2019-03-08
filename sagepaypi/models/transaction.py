@@ -222,8 +222,7 @@ class Transaction(models.Model):
                 'paymentMethod': {
                     'card': {
                         'merchantSessionKey': self.card_identifier.merchant_session_key,
-                        'cardIdentifier': self.card_identifier.card_identifier,
-                        'save': self.card_identifier.reusable
+                        'cardIdentifier': self.card_identifier.card_identifier
                     }
                 },
                 'customerFirstName': self.card_identifier.first_name,
@@ -477,8 +476,7 @@ class Transaction(models.Model):
         """
         Repeat a transaction
 
-        To repeat a transaction it must have a reusable card identifier, have been successful,
-        not void and if deferred it must have been released.
+        To repeat a transaction it must have been a successful Payment or Repeat.
 
         :param kwargs: Pass any defaults for the repeat transaction,
             ie {'amount': 1, 'description': 'Repeat of payment'}
@@ -496,20 +494,12 @@ class Transaction(models.Model):
             err = _('cannot repeat an unsuccessful transaction')
             raise InvalidTransactionStatus(err)
 
-        if not self.card_identifier.reusable:
-            err = _('cannot repeat a transaction without a reusable card identifier')
+        if self.type not in ['Payment', 'Repeat']:
+            err = _('can only repeat a Payment or Repeat transaction')
             raise InvalidTransactionStatus(err)
 
         if self.instruction == 'void':
             err = _('cannot repeat a void transaction')
-            raise InvalidTransactionStatus(err)
-
-        if self.deferred and self.instruction != 'release':
-            err = _('cannot repeat a deferred transaction that is not released')
-            raise InvalidTransactionStatus(err)
-
-        if self.type == 'Refund':
-            err = _('cannot repeat a refund transaction')
             raise InvalidTransactionStatus(err)
 
         repeat = Transaction(**kwargs)

@@ -29,7 +29,6 @@ GOOD_TRANSACTION_DATA = {
     'paymentMethod': {
         'card': {
             'cardType': 'Visa',
-            'reusable': True,
             'expiryDate': '0399',
             'cardIdentifier': '9641440A-E5AC-4191-8CAE-DC6C1AE11BCA',
             'lastFourDigits': '5559'
