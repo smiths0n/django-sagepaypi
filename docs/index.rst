@@ -1,7 +1,8 @@
 Django SagePayPI
 ================
 
-A gateway to submit payment to SagePayPI.
+A gateway to submit payment to Sage Pay Pi's newly refurbished open API.
+See http://integrations.sagepay.co.uk for more details.
 
 .. toctree::
    :maxdepth: 1
