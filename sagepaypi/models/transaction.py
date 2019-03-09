@@ -182,7 +182,7 @@ class Transaction(models.Model):
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-        help_text=_('The referring transaction used when a "Repeat" transaction.')
+        help_text=_('The referring transaction used for a "Repeat" or "Refund" transaction.')
     )
 
     objects = TransactionManager()
