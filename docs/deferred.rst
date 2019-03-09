@@ -12,7 +12,7 @@ Performing a deferred payment
 -----------------------------
 
 When you require a transaction to be performed using deferred you will capture the card details from your customer
-and create a card identifier in the same way as did in :ref:`creating-a-card-identifier`.
+and create a card identifier in the same way as you did in :ref:`creating-a-card-identifier`.
 
 Then create your transaction in the same way as a payment ensuring its ``type`` is set to ``Deferred``:
 
