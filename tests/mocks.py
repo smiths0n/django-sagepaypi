@@ -118,7 +118,7 @@ def transaction_3d_auth_status(*args, **kwargs):
     if args[0].endswith('3d-secure'):
         return MockResponse({
             'status': 'Authenticated'
-        }, 200)
+        }, 201)
 
     else:
         data = GOOD_TRANSACTION_DATA.copy()

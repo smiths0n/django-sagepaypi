@@ -41,8 +41,8 @@ class TestView(AppTestCase):
         self.assertEqual(response.status_code, 404)
 
     @override_settings(SAGEPAYPI_POST_3D_SECURE_REDIRECT_URL='secure_post_redirect')
-    @mock.patch('sagepaypi.gateway.requests.get', side_effect=transaction_3d_auth_status)
-    def test_post_with_valid_data(self, mock_get):
+    @mock.patch('sagepaypi.gateway.requests.post', side_effect=transaction_3d_auth_status)
+    def test_post_with_valid_data(self, mock_post):
         response = self.client.post(self.url, data={'PaRes': 'random-pares'})
 
         self.transaction.refresh_from_db()

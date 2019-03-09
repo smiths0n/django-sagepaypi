@@ -370,7 +370,7 @@ class Transaction(models.Model):
             err = _('transaction is missing a transaction_id')
             raise InvalidTransactionStatus(err)
 
-        if not self.successful or self.type != 'Deferred':
+        if not (self.successful and self.type == 'Deferred'):
             err = _('can only release a deferred transaction')
             raise InvalidTransactionStatus(err)
 
