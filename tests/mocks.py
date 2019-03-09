@@ -127,10 +127,17 @@ def transaction_3d_auth_status(*args, **kwargs):
 
 
 def abort_instruction_transaction(*args, **kwargs):
-    return MockResponse({
-        'instructionType': 'abort',
-        'date': '2016-09-08T11:27:34.728+01:00'
-    }, 201)
+    if args[0].endswith('/instructions'):
+        return MockResponse({
+            'instructionType': 'abort',
+            'date': '2016-09-08T11:27:34.728+01:00'
+        }, 201)
+    elif 'transactions' in args[0]:
+        data = GOOD_TRANSACTION_DATA.copy()
+        data['statusCode'] = '2006'
+        data['statusDetail'] = 'The Abort was Successful.'
+        data['retrievalReference'] = 0
+        return MockResponse(data, 200)
 
 
 def release_instruction_transaction(*args, **kwargs):
@@ -141,7 +148,14 @@ def release_instruction_transaction(*args, **kwargs):
 
 
 def void_instruction_transaction(*args, **kwargs):
-    return MockResponse({
-        'instructionType': 'void',
-        'date': '2016-09-08T11:27:34.728+01:00'
-    }, 201)
+    if args[0].endswith('/instructions'):
+        return MockResponse({
+            'instructionType': 'void',
+            'date': '2016-09-08T11:27:34.728+01:00'
+        }, 201)
+    elif 'transactions' in args[0]:
+        data = GOOD_TRANSACTION_DATA.copy()
+        data['statusCode'] = '2005'
+        data['statusDetail'] = 'The Void was Successful.'
+        data['retrievalReference'] = 0
+        return MockResponse(data, 200)

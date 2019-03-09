@@ -370,7 +370,7 @@ class Transaction(models.Model):
             err = _('transaction is missing a transaction_id')
             raise InvalidTransactionStatus(err)
 
-        if not self.deferred:
+        if not self.successful or self.type != 'Deferred':
             err = _('can only release a deferred transaction')
             raise InvalidTransactionStatus(err)
 
@@ -420,12 +420,12 @@ class Transaction(models.Model):
             err = _('transaction is missing a transaction_id')
             raise InvalidTransactionStatus(err)
 
-        if not self.deferred:
-            err = _('can only abort a deferred transaction')
+        if not self.successful:
+            err = _('cannot abort an unsuccessful transaction')
             raise InvalidTransactionStatus(err)
 
-        if self.instruction:
-            err = _('cannot abort a transaction with an existing instruction')
+        if not self.type == 'Deferred':
+            err = _('can only abort a deferred transaction')
             raise InvalidTransactionStatus(err)
 
         if self.days_since_created > 30:
@@ -447,7 +447,8 @@ class Transaction(models.Model):
             self.instruction = data['instructionType']
             self.instruction_created_at = dateutil.parser.parse(data['date'])
 
-        self.save()
+            self.save()
+            self.get_transaction_outcome()
 
     abort.alters_data = True
 
@@ -489,7 +490,8 @@ class Transaction(models.Model):
             self.instruction = data['instructionType']
             self.instruction_created_at = dateutil.parser.parse(data['date'])
 
-        self.save()
+            self.save()
+            self.get_transaction_outcome()
 
     void.alters_data = True
 
@@ -576,7 +578,7 @@ class Transaction(models.Model):
             err = _('cannot refund a void transaction')
             raise InvalidTransactionStatus(err)
 
-        if self.deferred and not self.instruction == 'release':
+        if self.type == 'Deferred' and not self.instruction == 'release':
             err = _('cannot refund a deferred transaction that is not released')
             raise InvalidTransactionStatus(err)
 
@@ -604,10 +606,6 @@ class Transaction(models.Model):
     @property
     def days_since_created(self):
         return (self.utc_now() - self.created_at).days
-
-    @property
-    def deferred(self):
-        return self.successful and self.type == 'Deferred'
 
     @property
     def requires_3d_secure(self):

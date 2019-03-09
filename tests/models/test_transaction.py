@@ -147,17 +147,6 @@ class TestModel(AppTestCase):
         pk = uuid.uuid4()
         self.assertEqual(Transaction(pk=pk).__str__(), str(pk))
 
-    def test_deferred(self):
-        self.assertTrue(
-            Transaction(status_code='0000', type='Deferred').deferred
-        )
-        self.assertFalse(
-            Transaction(status_code='1234', type='Deferred').deferred
-        )
-        self.assertFalse(
-            Transaction(status_code='0000', type='Payment').deferred
-        )
-
     def test_requires_3d_secure(self):
         self.assertTrue(
             Transaction(status_code='2007').requires_3d_secure

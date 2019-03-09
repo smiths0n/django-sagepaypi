@@ -37,22 +37,19 @@ class TestAbortTransaction(AppTestCase):
             'can only abort a deferred transaction'
         )
 
-    def test_error__instruction_already_present(self):
+    def test_error__not_successful(self):
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
         transaction.transaction_id = 'dummy-transaction-id'
         transaction.type = 'Deferred'
-        transaction.status_code = '0000'
+        transaction.status_code = '9999'
 
-        for instruction in ['release', 'abort']:
-            transaction.instruction = instruction
+        with self.assertRaises(InvalidTransactionStatus) as e:
+            transaction.abort()
 
-            with self.assertRaises(InvalidTransactionStatus) as e:
-                transaction.abort()
-
-            self.assertEqual(
-                e.exception.args[0],
-                'cannot abort a transaction with an existing instruction'
-            )
+        self.assertEqual(
+            e.exception.args[0],
+            'cannot abort an unsuccessful transaction'
+        )
 
     def test_error__instruction_too_late(self):
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
@@ -70,7 +67,8 @@ class TestAbortTransaction(AppTestCase):
         )
 
     @mock.patch('sagepaypi.gateway.requests.post', side_effect=abort_instruction_transaction)
-    def test_successful_instruction(self, mock_post):
+    @mock.patch('sagepaypi.gateway.requests.get', side_effect=abort_instruction_transaction)
+    def test_successful_instruction(self, mock_post, mock_get):
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
         transaction.transaction_id = 'dummy-transaction-id'
         transaction.type = 'Deferred'
@@ -79,8 +77,15 @@ class TestAbortTransaction(AppTestCase):
 
         transaction.abort()
 
-        json = mock_post().json()
+        json = mock_post('/instructions').json()
 
         # expected
         self.assertEqual(transaction.instruction, json['instructionType'])
         self.assertEqual(transaction.instruction_created_at, dateutil.parser.parse(json['date']))
+
+        # ensure transaction is updated
+        json = mock_get('/transactions/').json()
+
+        self.assertEqual(transaction.status_code, json['statusCode'])
+        self.assertEqual(transaction.status_detail, json['statusDetail'])
+        self.assertEqual(transaction.retrieval_reference, json['retrievalReference'])
