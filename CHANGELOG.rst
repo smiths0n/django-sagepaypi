@@ -2,7 +2,7 @@
 Changelog
 *********
 
-Next Release
-------------
+1.0.0
+-----
 
-* Pre Release
+* Initial Release
