@@ -33,12 +33,14 @@ class TestSubmitTransaction(AppTestCase):
         self.assertIsNone(transaction.pareq)
         self.assertIsNone(transaction.acs_url)
 
-    @mock.patch('sagepaypi.gateway.requests.post', side_effect=transaction_3d_auth_response)
-    def test_submit_transaction__requires_3d_auth(self, mock_post):
+    @mock.patch('sagepaypi.gateway.default_gateway')
+    def test_submit_transaction__requires_3d_auth(self, mock_gateway):
+        mock_gateway.submit_transaction.return_value = transaction_3d_auth_response()
+
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
         transaction.submit_transaction()
 
-        json = mock_post().json()
+        json = transaction_3d_auth_response().json()
 
         # expected
         self.assertEqual(transaction.status_code, json['statusCode'])
@@ -52,12 +54,14 @@ class TestSubmitTransaction(AppTestCase):
         self.assertIsNone(transaction.retrieval_reference)
         self.assertIsNone(transaction.bank_authorisation_code)
 
-    @mock.patch('sagepaypi.gateway.requests.post', side_effect=malformed_response)
-    def test_submit_transaction__bad_response(self, mock_post):
+    @mock.patch('sagepaypi.gateway.default_gateway')
+    def test_submit_transaction__bad_response(self, mock_gateway):
+        mock_gateway.submit_transaction.return_value = malformed_response()
+
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
         transaction.submit_transaction()
 
-        json = mock_post().json()
+        json = malformed_response().json()
 
         # expected
         self.assertEqual(transaction.status_code, json['statusCode'])
@@ -71,8 +75,10 @@ class TestSubmitTransaction(AppTestCase):
         self.assertIsNone(transaction.pareq)
         self.assertIsNone(transaction.acs_url)
 
-    @mock.patch('sagepaypi.gateway.requests.post', side_effect=gone_response)
-    def test_submit_transaction__500_response(self, mock_post):
+    @mock.patch('sagepaypi.gateway.default_gateway')
+    def test_submit_transaction__500_response(self, mock_gateway):
+        mock_gateway.submit_transaction.return_value = gone_response()
+
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
         transaction.submit_transaction()
 

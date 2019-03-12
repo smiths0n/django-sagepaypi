@@ -27,35 +27,43 @@ class TestForm(AppTestCase):
             'card_security_code': '123'
         }
 
-    @mock.patch('sagepaypi.gateway.requests.post', side_effect=card_identifier_response)
-    def test_is_valid(self, mock_post):
+    @mock.patch('sagepaypi.gateway.default_gateway')
+    def test_is_valid(self, mock_gateway):
+        mock_gateway.create_card_identifier.return_value = card_identifier_response()
+
         form = CardIdentifierForm(self.data)
         self.assertTrue(form.is_valid())
 
-    @mock.patch('sagepaypi.gateway.requests.post', side_effect=card_identifier_response)
-    def test_has_card_identifier_from_sagepay(self, mock_post):
+    @mock.patch('sagepaypi.gateway.default_gateway')
+    def test_has_card_identifier_from_sagepay(self, mock_gateway):
+        mock_gateway.create_card_identifier.return_value = card_identifier_response()
+
         form = CardIdentifierForm(self.data)
 
-        json = mock_post('card-identifiers').json()
+        json = card_identifier_response()[0].json()
+        merchant_session_key = card_identifier_response()[1]
 
         assert form.is_valid()
 
-        self.assertEqual(form.instance.merchant_session_key, 'test-identifier')
+        self.assertEqual(form.instance.merchant_session_key, merchant_session_key)
         self.assertEqual(form.instance.card_identifier, json['cardIdentifier'])
         self.assertEqual(form.instance.card_identifier_expiry, dateutil.parser.parse(json['expiry']))
         self.assertEqual(form.instance.card_type, json['cardType'])
 
-    @mock.patch('sagepaypi.gateway.requests.post', side_effect=card_identifier_response)
-    def test_save_creates_model_instance(self, mock_post):
+    @mock.patch('sagepaypi.gateway.default_gateway')
+    def test_save_creates_model_instance(self, mock_gateway):
+        mock_gateway.create_card_identifier.return_value = card_identifier_response()
+
         form = CardIdentifierForm(self.data)
 
-        json = mock_post('card-identifiers').json()
+        json = card_identifier_response()[0].json()
+        merchant_session_key = card_identifier_response()[1]
 
         assert form.is_valid()
 
         instance = form.save()
 
-        self.assertEqual(instance.merchant_session_key, 'test-identifier')
+        self.assertEqual(instance.merchant_session_key, merchant_session_key)
         self.assertEqual(instance.card_identifier, json['cardIdentifier'])
         self.assertEqual(instance.card_identifier_expiry, dateutil.parser.parse(json['expiry']))
         self.assertEqual(instance.card_type, json['cardType'])
@@ -84,8 +92,10 @@ class TestForm(AppTestCase):
         self.assertEqual(form.instance.card_type, '')
         self.assertIsNone(form.instance.card_identifier_expiry)
 
-    @mock.patch('sagepaypi.gateway.requests.post', side_effect=card_identifier_failed_response)
-    def test_correct_errors_from_sagepay_are_pushed_in_form_errors(self, mock_post):
+    @mock.patch('sagepaypi.gateway.default_gateway')
+    def test_correct_errors_from_sagepay_are_pushed_in_form_errors(self, mock_gateway):
+        mock_gateway.create_card_identifier.return_value = card_identifier_failed_response()
+
         form = CardIdentifierForm(self.data)
 
         self.assertFalse(form.is_valid())

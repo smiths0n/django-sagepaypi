@@ -5,7 +5,7 @@ import mock
 from sagepaypi.exceptions import InvalidTransactionStatus
 from sagepaypi.models import Transaction
 
-from tests.mocks import void_instruction_transaction
+from tests.mocks import void_instruction_transaction, transaction_void_response
 from tests.test_case import AppTestCase
 
 
@@ -68,9 +68,11 @@ class TestVoidTransaction(AppTestCase):
             'can only void transaction that was created today'
         )
 
-    @mock.patch('sagepaypi.gateway.requests.post', side_effect=void_instruction_transaction)
-    @mock.patch('sagepaypi.gateway.requests.get', side_effect=void_instruction_transaction)
-    def test_successful_instruction(self, mock_post, mock_get):
+    @mock.patch('sagepaypi.gateway.default_gateway')
+    def test_successful_instruction(self, mock_gateway):
+        mock_gateway.submit_transaction_instruction.return_value = void_instruction_transaction()
+        mock_gateway.get_transaction_outcome.return_value = transaction_void_response()
+
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
         transaction.transaction_id = 'dummy-transaction-id'
         transaction.type = 'Payment'
@@ -79,14 +81,14 @@ class TestVoidTransaction(AppTestCase):
 
         transaction.void()
 
-        json = mock_post('/instructions').json()
+        json = void_instruction_transaction().json()
 
         # expected
         self.assertEqual(transaction.instruction, json['instructionType'])
         self.assertEqual(transaction.instruction_created_at, dateutil.parser.parse(json['date']))
 
         # ensure transaction is updated
-        json = mock_get('/transactions/').json()
+        json = transaction_void_response().json()
 
         self.assertEqual(transaction.status_code, json['statusCode'])
         self.assertEqual(transaction.status_detail, json['statusDetail'])

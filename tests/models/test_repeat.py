@@ -3,7 +3,7 @@ import mock
 from sagepaypi.exceptions import InvalidTransactionStatus
 from sagepaypi.models import Transaction
 
-from tests.mocks import payment_created_response
+from tests.mocks import repeat_created_response
 from tests.test_case import AppTestCase
 
 
@@ -80,8 +80,10 @@ class TestRepeatTransaction(AppTestCase):
             'cannot repeat a void transaction'
         )
 
-    @mock.patch('sagepaypi.gateway.requests.post', side_effect=payment_created_response)
-    def test_successful_repeat__payment(self, mock_post):
+    @mock.patch('sagepaypi.gateway.default_gateway')
+    def test_successful_repeat__payment(self, mock_gateway):
+        mock_gateway.submit_transaction.return_value = repeat_created_response()
+
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
         transaction.transaction_id = 'dummy-transaction-id'
         transaction.type = 'Payment'
@@ -89,7 +91,7 @@ class TestRepeatTransaction(AppTestCase):
 
         repeat = transaction.repeat()
 
-        json = mock_post().json()
+        json = repeat_created_response().json()
 
         # expected
         self.assertEqual(repeat.type, 'Repeat')
@@ -104,8 +106,10 @@ class TestRepeatTransaction(AppTestCase):
         self.assertEqual(repeat.retrieval_reference, json['retrievalReference'])
         self.assertEqual(repeat.bank_authorisation_code, json['bankAuthorisationCode'])
 
-    @mock.patch('sagepaypi.gateway.requests.post', side_effect=payment_created_response)
-    def test_successful_repeat__with_kwargs(self, mock_post):
+    @mock.patch('sagepaypi.gateway.default_gateway')
+    def test_successful_repeat__with_kwargs(self, mock_gateway):
+        mock_gateway.submit_transaction.return_value = repeat_created_response()
+
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
         transaction.transaction_id = 'dummy-transaction-id'
         transaction.type = 'Payment'
@@ -113,7 +117,7 @@ class TestRepeatTransaction(AppTestCase):
 
         repeat = transaction.repeat(amount=50, description='repeat payment', vendor_tx_code='repeat-123')
 
-        json = mock_post().json()
+        json = repeat_created_response().json()
 
         # expected
         self.assertEqual(repeat.type, 'Repeat')
@@ -129,8 +133,10 @@ class TestRepeatTransaction(AppTestCase):
         self.assertEqual(repeat.retrieval_reference, json['retrievalReference'])
         self.assertEqual(repeat.bank_authorisation_code, json['bankAuthorisationCode'])
 
-    @mock.patch('sagepaypi.gateway.requests.post', side_effect=payment_created_response)
-    def test_successful_repeat__repeat(self, mock_post):
+    @mock.patch('sagepaypi.gateway.default_gateway')
+    def test_successful_repeat__repeat(self, mock_gateway):
+        mock_gateway.submit_transaction.return_value = repeat_created_response()
+
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
         transaction.transaction_id = 'dummy-transaction-id'
         transaction.type = 'Repeat'
@@ -138,7 +144,7 @@ class TestRepeatTransaction(AppTestCase):
 
         repeat = transaction.repeat()
 
-        json = mock_post().json()
+        json = repeat_created_response().json()
 
         # expected
         self.assertEqual(repeat.type, 'Repeat')
@@ -153,8 +159,10 @@ class TestRepeatTransaction(AppTestCase):
         self.assertEqual(repeat.retrieval_reference, json['retrievalReference'])
         self.assertEqual(repeat.bank_authorisation_code, json['bankAuthorisationCode'])
 
-    @mock.patch('sagepaypi.gateway.requests.post', side_effect=payment_created_response)
-    def test_successful_deferred__release(self, mock_post):
+    @mock.patch('sagepaypi.gateway.default_gateway')
+    def test_successful_deferred__release(self, mock_gateway):
+        mock_gateway.submit_transaction.return_value = repeat_created_response()
+
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
         transaction.transaction_id = 'dummy-transaction-id'
         transaction.type = 'Deferred'
@@ -163,7 +171,7 @@ class TestRepeatTransaction(AppTestCase):
 
         repeat = transaction.repeat()
 
-        json = mock_post().json()
+        json = repeat_created_response().json()
 
         # expected
         self.assertEqual(repeat.type, 'Repeat')

@@ -3,7 +3,7 @@ import mock
 from sagepaypi.exceptions import InvalidTransactionStatus
 
 from sagepaypi.models import Transaction
-from tests.mocks import gone_response, transaction_3d_auth_status
+from tests.mocks import gone_response, transaction_3d_auth_status, transaction_outcome_response
 from tests.test_case import AppTestCase
 
 
@@ -21,8 +21,11 @@ class TestTransactionOutcome(AppTestCase):
             'transaction is missing a transaction_id'
         )
 
-    @mock.patch('sagepaypi.gateway.requests.post', side_effect=gone_response)
-    def test_error__500_response(self, mock_post):
+    @mock.patch('sagepaypi.gateway.default_gateway')
+    def test_error__500_response(self, mock_gateway):
+        mock_gateway.get_3d_secure_status.return_value = gone_response()
+        mock_gateway.get_transaction_outcome.return_value = gone_response()
+
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
         transaction.transaction_id = 'dummy-transaction-id'
         transaction.get_3d_secure_status('pares-data')
@@ -30,13 +33,16 @@ class TestTransactionOutcome(AppTestCase):
         # not expected
         self.assertIsNone(transaction.secure_status)
 
-    @mock.patch('sagepaypi.gateway.requests.post', side_effect=transaction_3d_auth_status)
-    def test_outcome__success(self, mock_post):
+    @mock.patch('sagepaypi.gateway.default_gateway')
+    def test_outcome__success(self, mock_gateway):
+        mock_gateway.get_3d_secure_status.return_value = transaction_3d_auth_status()
+        mock_gateway.get_transaction_outcome.return_value = transaction_outcome_response()
+
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
         transaction.transaction_id = 'dummy-transaction-id'
         transaction.get_3d_secure_status('pares-data')
 
-        json = mock_post('/3d-secure').json()
+        json = transaction_3d_auth_status().json()
 
         # expected
         self.assertEqual(transaction.pares, 'pares-data')

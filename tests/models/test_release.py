@@ -85,8 +85,10 @@ class TestReleaseTransaction(AppTestCase):
             'can only release up to the original amount and no more'
         )
 
-    @mock.patch('sagepaypi.gateway.requests.post', side_effect=release_instruction_transaction)
-    def test_successful_instruction(self, mock_post):
+    @mock.patch('sagepaypi.gateway.default_gateway')
+    def test_successful_instruction(self, mock_gateway):
+        mock_gateway.submit_transaction_instruction.return_value = release_instruction_transaction()
+
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
         transaction.transaction_id = 'dummy-transaction-id'
         transaction.type = 'Deferred'
@@ -95,14 +97,16 @@ class TestReleaseTransaction(AppTestCase):
 
         transaction.release()
 
-        json = mock_post().json()
+        json = release_instruction_transaction().json()
 
         # expected
         self.assertEqual(transaction.instruction, json['instructionType'])
         self.assertEqual(transaction.instruction_created_at, dateutil.parser.parse(json['date']))
 
-    @mock.patch('sagepaypi.gateway.requests.post', side_effect=release_instruction_transaction)
-    def test_successful_instruction__with_amount(self, mock_post):
+    @mock.patch('sagepaypi.gateway.default_gateway')
+    def test_successful_instruction__with_amount(self, mock_gateway):
+        mock_gateway.submit_transaction_instruction.return_value = release_instruction_transaction()
+
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
         transaction.transaction_id = 'dummy-transaction-id'
         transaction.type = 'Deferred'
@@ -112,7 +116,7 @@ class TestReleaseTransaction(AppTestCase):
 
         transaction.release(amount=99)
 
-        json = mock_post().json()
+        json = release_instruction_transaction().json()
 
         # expected
         self.assertEqual(transaction.instruction, json['instructionType'])

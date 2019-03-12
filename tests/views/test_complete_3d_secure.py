@@ -4,7 +4,7 @@ from django.test import override_settings
 from django.urls import reverse
 
 from sagepaypi.models import Transaction
-from tests.mocks import transaction_3d_auth_status
+from tests.mocks import transaction_3d_auth_status, transaction_outcome_response
 
 from tests.test_case import AppTestCase
 
@@ -41,8 +41,11 @@ class TestView(AppTestCase):
         self.assertEqual(response.status_code, 404)
 
     @override_settings(SAGEPAYPI_POST_3D_SECURE_REDIRECT_URL='secure_post_redirect')
-    @mock.patch('sagepaypi.gateway.requests.post', side_effect=transaction_3d_auth_status)
-    def test_post_with_valid_data(self, mock_post):
+    @mock.patch('sagepaypi.gateway.default_gateway')
+    def test_post_with_valid_data(self, mock_gateway):
+        mock_gateway.get_3d_secure_status.return_value = transaction_3d_auth_status()
+        mock_gateway.get_transaction_outcome.return_value = transaction_outcome_response()
+
         response = self.client.post(self.url, data={'PaRes': 'random-pares'})
 
         self.transaction.refresh_from_db()

@@ -67,8 +67,10 @@ class TestRefundTransaction(AppTestCase):
                 'cannot refund a deferred transaction that is not released'
             )
 
-    @mock.patch('sagepaypi.gateway.requests.post', side_effect=refund_created_response)
-    def test_successful_refund__payment(self, mock_post):
+    @mock.patch('sagepaypi.gateway.default_gateway')
+    def test_successful_refund__payment(self, mock_gateway):
+        mock_gateway.submit_transaction.return_value = refund_created_response()
+
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
         transaction.transaction_id = 'dummy-transaction-id'
         transaction.type = 'Payment'
@@ -76,7 +78,7 @@ class TestRefundTransaction(AppTestCase):
 
         refund = transaction.refund()
 
-        json = mock_post().json()
+        json = refund_created_response().json()
 
         # expected
         self.assertEqual(refund.type, 'Refund')
@@ -91,8 +93,10 @@ class TestRefundTransaction(AppTestCase):
         self.assertEqual(refund.retrieval_reference, json['retrievalReference'])
         self.assertEqual(refund.bank_authorisation_code, json['bankAuthorisationCode'])
 
-    @mock.patch('sagepaypi.gateway.requests.post', side_effect=refund_created_response)
-    def test_successful_refund__with_kwargs(self, mock_post):
+    @mock.patch('sagepaypi.gateway.default_gateway')
+    def test_successful_refund__with_kwargs(self, mock_gateway):
+        mock_gateway.submit_transaction.return_value = refund_created_response()
+
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
         transaction.transaction_id = 'dummy-transaction-id'
         transaction.type = 'Payment'
@@ -100,7 +104,7 @@ class TestRefundTransaction(AppTestCase):
 
         refund = transaction.refund(amount=50, description='refund payment', vendor_tx_code='refund-123')
 
-        json = mock_post().json()
+        json = refund_created_response().json()
 
         # expected
         self.assertEqual(refund.type, 'Refund')
@@ -116,8 +120,10 @@ class TestRefundTransaction(AppTestCase):
         self.assertEqual(refund.retrieval_reference, json['retrievalReference'])
         self.assertEqual(refund.bank_authorisation_code, json['bankAuthorisationCode'])
 
-    @mock.patch('sagepaypi.gateway.requests.post', side_effect=refund_created_response)
-    def test_successful_refund_repeat(self, mock_post):
+    @mock.patch('sagepaypi.gateway.default_gateway')
+    def test_successful_refund_repeat(self, mock_gateway):
+        mock_gateway.submit_transaction.return_value = refund_created_response()
+
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
         transaction.transaction_id = 'dummy-transaction-id'
         transaction.type = 'Repeat'
@@ -125,7 +131,7 @@ class TestRefundTransaction(AppTestCase):
 
         refund = transaction.refund()
 
-        json = mock_post().json()
+        json = refund_created_response().json()
 
         # expected
         self.assertEqual(refund.type, 'Refund')
