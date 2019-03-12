@@ -2,9 +2,10 @@ import uuid
 
 from django.core.exceptions import ValidationError
 from django.db import models
-from sagepaypi.constants import get_country_choices, get_us_state_choices
 
+from sagepaypi.constants import COUNTRY_CHOICES, US_STATE_CHOICES
 from sagepaypi.models import CardIdentifier
+
 from tests.test_case import AppTestCase
 
 
@@ -57,13 +58,11 @@ class TestModel(AppTestCase):
         field = self.get_field(CardIdentifier, 'billing_country')
         self.assertModelField(field, models.CharField)
         self.assertEqual(field.max_length, 2)
-        self.assertEqual(field.choices, get_country_choices())
 
     def test_billing_state(self):
         field = self.get_field(CardIdentifier, 'billing_state')
         self.assertModelField(field, models.CharField, True, True)
         self.assertEqual(field.max_length, 2)
-        self.assertEqual(field.choices, get_us_state_choices())
 
     def test_merchant_session_key(self):
         field = self.get_field(CardIdentifier, 'merchant_session_key')

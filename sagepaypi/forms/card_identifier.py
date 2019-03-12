@@ -4,11 +4,19 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 from sagepaypi.gateway import SagepayHttpResponse
+from sagepaypi.constants import US_STATE_CHOICES, COUNTRY_CHOICES
 from sagepaypi.fields import CardNumberField, CardCVCodeField, CardExpiryDateField
 from sagepaypi.models import CardIdentifier
 
 
 class CardIdentifierForm(forms.ModelForm):
+    billing_country = forms.ChoiceField(
+        choices=[('', '---------')] + COUNTRY_CHOICES
+    )
+    billing_state = forms.ChoiceField(
+        choices=[('', '---------')] + US_STATE_CHOICES,
+        required=False
+    )
     card_holder_name = forms.CharField()
     card_number = CardNumberField()
     card_expiry_date = CardExpiryDateField()

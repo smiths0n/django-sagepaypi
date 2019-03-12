@@ -10,9 +10,11 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.translation import ugettext_lazy as _
 
+import pycountry
+
 from sagepaypi.exceptions import InvalidTransactionStatus
 from sagepaypi.gateway import SagepayHttpResponse
-from sagepaypi.constants import get_currency_choices, get_transaction_type_choices
+from sagepaypi.constants import TRANSACTION_TYPE_CHOICES
 from sagepaypi.tokens import default_token_generator
 
 
@@ -55,7 +57,7 @@ class Transaction(models.Model):
     type = models.CharField(
         _('Type'),
         max_length=8,
-        choices=get_transaction_type_choices(),
+        choices=TRANSACTION_TYPE_CHOICES,
         help_text=_('Type of transaction, e.g "Payment".')
     )
     card_identifier = models.ForeignKey(
@@ -79,8 +81,7 @@ class Transaction(models.Model):
     currency = models.CharField(
         _('Currency'),
         max_length=3,
-        choices=get_currency_choices(),
-        help_text=_('Currency of transaction, e.g "Pounds Sterling".')
+        help_text=_('Currency code of transaction, e.g "GBP = Pounds Sterling".')
     )
     description = models.TextField(
         _('Description'),
@@ -197,14 +198,23 @@ class Transaction(models.Model):
         """
         Includes additional validation to ensure:
 
+        - currency is a valid currency code
         - reference_transaction is present when the type is either a "Repeat" or "Refund".
         """
 
+        errors = {}
+
+        if not pycountry.currencies.get(alpha_3=self.currency):
+            errors['currency'] = _('Requires a valid currency.')
+
         if self.type == 'Repeat' and not self.reference_transaction:
-            raise ValidationError({'reference_transaction': _('Required for a "Repeat" transaction.')})
+            errors['reference_transaction'] = _('Required for a "Repeat" transaction.')
 
         if self.type == 'Refund' and not self.reference_transaction:
-            raise ValidationError({'reference_transaction': _('Required for a "Refund" transaction.')})
+            errors['reference_transaction'] = _('Required for a "Refund" transaction.')
+
+        if errors:
+            raise ValidationError(errors)
 
     def get_tokens(self):
         """

@@ -4,8 +4,6 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from sagepaypi.constants import get_country_choices, get_us_state_choices
-
 
 class CardIdentifier(models.Model):
     id = models.UUIDField(
@@ -42,8 +40,7 @@ class CardIdentifier(models.Model):
     )
     billing_country = models.CharField(
         _('Billing country'),
-        max_length=2,
-        choices=get_country_choices()
+        max_length=2
     )
     billing_postal_code = models.CharField(
         _('Billing Postal/Zip Code'),
@@ -57,7 +54,6 @@ class CardIdentifier(models.Model):
         max_length=2,
         null=True,
         blank=True,
-        choices=get_us_state_choices(),
         help_text=_('Required only if country is United States')
     )
 

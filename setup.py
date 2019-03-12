@@ -9,6 +9,7 @@ from sagepaypi import __version__
 
 install_requires = [
     'Django>=2',
+    'pycountry>=18.12.8',
     'python-dateutil>=2.6',
     'requests>=2',
 ]

@@ -1,42 +1,21 @@
 from django.utils.translation import ugettext_lazy as _
 
-
-# http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
-COUNTRIES = {
-    "IE": _("Ireland"),
-    "GB": _("United Kingdom"),
-    "US": _("United States"),
-}
-
-# https://en.wikipedia.org/wiki/ISO_4217
-CURRENCIES = {
-    "GBP": _("Pound Sterling"),
-}
-
-TRANSACTION_TYPES = {
-    "Payment": _("Payment"),
-    "Deferred": _("Deferred"),
-    "Repeat": _("Repeat"),
-    "Refund": _("Refund"),
-}
-
-# http://en.wikipedia.org/wiki/ISO_3166-2:US
-US_STATES = {
-    "AL": _("Alabama"),
-}
+import pycountry
 
 
-def get_country_choices():
-    return [(c, v) for c, v in COUNTRIES.items()]
+COUNTRY_CHOICES = sorted(
+    [(o.alpha_2, o.name) for o in pycountry.countries],
+    key=lambda o: o[1]
+)
 
+TRANSACTION_TYPE_CHOICES = [
+    ('Payment', _('Payment')),
+    ('Deferred', _('Deferred')),
+    ('Repeat', _('Repeat')),
+    ('Refund', _('Refund')),
+]
 
-def get_currency_choices():
-    return [(c, v) for c, v in CURRENCIES.items()]
-
-
-def get_transaction_type_choices():
-    return [(c, v) for c, v in TRANSACTION_TYPES.items()]
-
-
-def get_us_state_choices():
-    return [(c, v) for c, v in US_STATES.items()]
+US_STATE_CHOICES = sorted(
+    [(o.code[-2:], o.name) for o in pycountry.subdivisions.get(country_code='US')],
+    key=lambda o: o[1]
+)

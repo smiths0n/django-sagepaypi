@@ -3,7 +3,7 @@ import uuid
 from django.core.exceptions import ValidationError
 from django.db import models
 
-from sagepaypi.constants import get_transaction_type_choices, get_currency_choices
+from sagepaypi.constants import TRANSACTION_TYPE_CHOICES
 from sagepaypi.models import CardIdentifier, Transaction
 
 from tests.test_case import AppTestCase
@@ -50,7 +50,7 @@ class TestModel(AppTestCase):
         field = self.get_field(Transaction, 'type')
         self.assertModelField(field, models.CharField)
         self.assertEqual(field.max_length, 8)
-        self.assertEqual(field.choices, get_transaction_type_choices())
+        self.assertEqual(field.choices, TRANSACTION_TYPE_CHOICES)
 
     def test_card_identifier(self):
         field = self.get_field(Transaction, 'card_identifier')
@@ -70,7 +70,6 @@ class TestModel(AppTestCase):
         field = self.get_field(Transaction, 'currency')
         self.assertModelField(field, models.CharField)
         self.assertEqual(field.max_length, 3)
-        self.assertEqual(field.choices, get_currency_choices())
 
     def test_description(self):
         field = self.get_field(Transaction, 'description')
@@ -167,23 +166,25 @@ class TestModel(AppTestCase):
 
     def test_clean(self):
         with self.assertRaises(ValidationError) as e:
+            Transaction(currency='FOO').clean()
+
+        self.assertEqual(
+            e.exception.args[0]['currency'],
+            'Requires a valid currency.'
+        )
+
+        with self.assertRaises(ValidationError) as e:
             Transaction(type='Repeat').clean()
 
         self.assertEqual(
-            e.exception.args[0],
-            {'reference_transaction': 'Required for a "Repeat" transaction.'}
+            e.exception.args[0]['reference_transaction'],
+            'Required for a "Repeat" transaction.'
         )
 
         with self.assertRaises(ValidationError) as e:
             Transaction(type='Refund').clean()
 
         self.assertEqual(
-            e.exception.args[0],
-            {'reference_transaction': 'Required for a "Refund" transaction.'}
+            e.exception.args[0]['reference_transaction'],
+            'Required for a "Refund" transaction.'
         )
-
-
-
-
-
-
