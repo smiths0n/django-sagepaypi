@@ -16,6 +16,13 @@ class TransactionCreateView(SessionWizardView):
         ('transaction', TransactionForm),
         ('card', CardIdentifierForm),
     ]
+    initial_dict = {
+        'transaction': {
+            'amount': 100,
+            'currency': 'GBP',
+            'description': 'Payment for goods'
+        }
+    }
     templates = {
         'transaction': 'example/forms/transaction.html',
         'card': 'example/forms/card.html',
@@ -32,7 +39,6 @@ class TransactionCreateView(SessionWizardView):
         # for new cards payment type is Payment
         transaction.type = 'Payment'
         transaction.card_identifier = card_identifier
-        transaction.description = 'Payment for goods'
         transaction.save()
 
         transaction.submit_transaction()

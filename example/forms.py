@@ -8,5 +8,6 @@ class TransactionForm(forms.ModelForm):
         model = Transaction
         fields = (
             'amount',
-            'currency'
+            'currency',
+            'description'
         )
