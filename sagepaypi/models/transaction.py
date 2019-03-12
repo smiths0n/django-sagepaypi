@@ -11,7 +11,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.translation import ugettext_lazy as _
 
 from sagepaypi.exceptions import InvalidTransactionStatus
-from sagepaypi.gateway import SagepayGateway, SagepayHttpResponse
+from sagepaypi.gateway import SagepayHttpResponse
 from sagepaypi.constants import get_currency_choices, get_transaction_type_choices
 from sagepaypi.tokens import default_token_generator
 
@@ -229,7 +229,6 @@ class Transaction(models.Model):
         Submit's the transaction to Sage Pay and saves the response.
         """
 
-        gateway = SagepayGateway()
         new_transaction = {
             'transactionType': self.type,
             'vendorTxCode': str(self.vendor_tx_code),
@@ -256,7 +255,9 @@ class Transaction(models.Model):
                 'referenceTransactionId': self.reference_transaction.transaction_id
             })
 
-        response = gateway.submit_transaction(new_transaction)
+        from sagepaypi.gateway import default_gateway
+
+        response = default_gateway.submit_transaction(new_transaction)
 
         data = response.json()
 
@@ -304,9 +305,10 @@ class Transaction(models.Model):
 
         self.pares = pares
 
-        gateway = SagepayGateway()
+        from sagepaypi.gateway import default_gateway
+
         post_data = {'paRes': self.pares}
-        response = gateway.get_3d_secure_status(self.transaction_id, post_data)
+        response = default_gateway.get_3d_secure_status(self.transaction_id, post_data)
 
         data = response.json()
 
@@ -333,8 +335,9 @@ class Transaction(models.Model):
             err = _('transaction is missing a transaction_id')
             raise InvalidTransactionStatus(err)
 
-        gateway = SagepayGateway()
-        response = gateway.get_transaction_outcome(self.transaction_id)
+        from sagepaypi.gateway import default_gateway
+
+        response = default_gateway.get_transaction_outcome(self.transaction_id)
 
         data = response.json()
 
@@ -386,12 +389,13 @@ class Transaction(models.Model):
             err = _('can only release up to the original amount and no more')
             raise InvalidTransactionStatus(err)
 
-        gateway = SagepayGateway()
+        from sagepaypi.gateway import default_gateway
+
         post_data = {
             'instructionType': 'release',
             'amount': amount or self.amount
         }
-        response = gateway.submit_transaction_instruction(self.transaction_id, post_data)
+        response = default_gateway.submit_transaction_instruction(self.transaction_id, post_data)
 
         data = response.json()
 
@@ -432,12 +436,13 @@ class Transaction(models.Model):
             err = _('can only abort a transaction that was created within 30 days')
             raise InvalidTransactionStatus(err)
 
-        gateway = SagepayGateway()
+        from sagepaypi.gateway import default_gateway
+
         post_data = {
             'instructionType': 'abort',
             'amount': self.amount
         }
-        response = gateway.submit_transaction_instruction(self.transaction_id, post_data)
+        response = default_gateway.submit_transaction_instruction(self.transaction_id, post_data)
 
         data = response.json()
 
@@ -478,9 +483,10 @@ class Transaction(models.Model):
             err = _('can only void transaction that was created today')
             raise InvalidTransactionStatus(err)
 
-        gateway = SagepayGateway()
+        from sagepaypi.gateway import default_gateway
+
         post_data = {'instructionType': 'void'}
-        response = gateway.submit_transaction_instruction(self.transaction_id, post_data)
+        response = default_gateway.submit_transaction_instruction(self.transaction_id, post_data)
 
         data = response.json()
 

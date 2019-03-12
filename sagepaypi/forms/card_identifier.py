@@ -3,7 +3,7 @@ import dateutil
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from sagepaypi.gateway import SagepayGateway, SagepayHttpResponse
+from sagepaypi.gateway import SagepayHttpResponse
 from sagepaypi.fields import CardNumberField, CardCVCodeField, CardExpiryDateField
 from sagepaypi.models import CardIdentifier
 
@@ -44,8 +44,6 @@ class CardIdentifierForm(forms.ModelForm):
 
         super().clean()
 
-        gateway = SagepayGateway()
-
         card_holder_name = self.cleaned_data.get('card_holder_name')
         card_number = self.cleaned_data.get('card_number')
         card_expiry_date = self.cleaned_data.get('card_expiry_date')
@@ -53,6 +51,9 @@ class CardIdentifierForm(forms.ModelForm):
 
         if all([card_holder_name, card_number, card_expiry_date, card_security_code]):
             # submit new card to Sage Pay only if all fields are clean
+
+            from sagepaypi.gateway import default_gateway
+
             data = {
                 'cardDetails': {
                     'cardholderName': card_holder_name,
@@ -62,7 +63,7 @@ class CardIdentifierForm(forms.ModelForm):
                 }
             }
 
-            response, merchant_session_key = gateway.create_card_identifier(data)
+            response, merchant_session_key = default_gateway.create_card_identifier(data)
 
             data = response.json()
 

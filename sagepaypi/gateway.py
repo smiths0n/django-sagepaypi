@@ -84,3 +84,6 @@ class SagepayGateway:
         url = '%s/transactions/%s/instructions' % (self.api_url(), transaction_id)
 
         return requests.post(url, json=data, auth=self.basic_auth())
+
+
+default_gateway = SagepayGateway()

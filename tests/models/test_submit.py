@@ -13,12 +13,13 @@ from tests.test_case import AppTestCase
 class TestSubmitTransaction(AppTestCase):
     fixtures = ['tests/fixtures/test']
 
-    @mock.patch('sagepaypi.gateway.requests.post', side_effect=payment_created_response)
-    def test_submit_transaction__success(self, mock_post):
+    @mock.patch('sagepaypi.gateway.default_gateway')
+    def test_submit_transaction__success(self, mock_gateway):
+        mock_gateway.submit_transaction.return_value = payment_created_response()
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
         transaction.submit_transaction()
 
-        json = mock_post().json()
+        json = payment_created_response().json()
 
         # expected
         self.assertEqual(transaction.status_code, json['statusCode'])
