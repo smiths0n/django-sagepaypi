@@ -3,7 +3,7 @@ import mock
 from sagepaypi.exceptions import InvalidTransactionStatus
 
 from sagepaypi.models import Transaction
-from tests.mocks import gone_response, transaction_outcome_response
+from tests.mocks import gone_response, outcome_live_response
 from tests.test_case import AppTestCase
 
 
@@ -40,13 +40,13 @@ class TestTransactionOutcome(AppTestCase):
 
     @mock.patch('sagepaypi.gateway.default_gateway')
     def test_outcome__success(self, mock_gateway):
-        mock_gateway.get_transaction_outcome.return_value = transaction_outcome_response()
+        mock_gateway.get_transaction_outcome.return_value = outcome_live_response()
 
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
         transaction.transaction_id = 'dummy-transaction-id'
         transaction.get_transaction_outcome()
 
-        json = transaction_outcome_response().json()
+        json = outcome_live_response().json()
 
         # expected
         self.assertEqual(transaction.status_code, json['statusCode'])

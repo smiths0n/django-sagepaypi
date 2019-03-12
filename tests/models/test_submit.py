@@ -4,8 +4,8 @@ from sagepaypi.models import Transaction
 from tests.mocks import (
     gone_response,
     malformed_response,
-    payment_created_response,
-    transaction_3d_auth_response,
+    created_payment_response,
+    auth_required_response,
 )
 from tests.test_case import AppTestCase
 
@@ -15,11 +15,11 @@ class TestSubmitTransaction(AppTestCase):
 
     @mock.patch('sagepaypi.gateway.default_gateway')
     def test_submit_transaction__success(self, mock_gateway):
-        mock_gateway.submit_transaction.return_value = payment_created_response()
+        mock_gateway.submit_transaction.return_value = created_payment_response()
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
         transaction.submit_transaction()
 
-        json = payment_created_response().json()
+        json = created_payment_response().json()
 
         # expected
         self.assertEqual(transaction.status_code, json['statusCode'])
@@ -35,12 +35,12 @@ class TestSubmitTransaction(AppTestCase):
 
     @mock.patch('sagepaypi.gateway.default_gateway')
     def test_submit_transaction__requires_3d_auth(self, mock_gateway):
-        mock_gateway.submit_transaction.return_value = transaction_3d_auth_response()
+        mock_gateway.submit_transaction.return_value = auth_required_response()
 
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
         transaction.submit_transaction()
 
-        json = transaction_3d_auth_response().json()
+        json = auth_required_response().json()
 
         # expected
         self.assertEqual(transaction.status_code, json['statusCode'])

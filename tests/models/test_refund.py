@@ -3,7 +3,7 @@ import mock
 from sagepaypi.exceptions import InvalidTransactionStatus
 from sagepaypi.models import Transaction
 
-from tests.mocks import refund_created_response
+from tests.mocks import created_refund_response
 from tests.test_case import AppTestCase
 
 
@@ -69,7 +69,7 @@ class TestRefundTransaction(AppTestCase):
 
     @mock.patch('sagepaypi.gateway.default_gateway')
     def test_successful_refund__payment(self, mock_gateway):
-        mock_gateway.submit_transaction.return_value = refund_created_response()
+        mock_gateway.submit_transaction.return_value = created_refund_response()
 
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
         transaction.transaction_id = 'dummy-transaction-id'
@@ -78,7 +78,7 @@ class TestRefundTransaction(AppTestCase):
 
         refund = transaction.refund()
 
-        json = refund_created_response().json()
+        json = created_refund_response().json()
 
         # expected
         self.assertEqual(refund.type, 'Refund')
@@ -95,7 +95,7 @@ class TestRefundTransaction(AppTestCase):
 
     @mock.patch('sagepaypi.gateway.default_gateway')
     def test_successful_refund__with_kwargs(self, mock_gateway):
-        mock_gateway.submit_transaction.return_value = refund_created_response()
+        mock_gateway.submit_transaction.return_value = created_refund_response()
 
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
         transaction.transaction_id = 'dummy-transaction-id'
@@ -104,7 +104,7 @@ class TestRefundTransaction(AppTestCase):
 
         refund = transaction.refund(amount=50, description='refund payment', vendor_tx_code='refund-123')
 
-        json = refund_created_response().json()
+        json = created_refund_response().json()
 
         # expected
         self.assertEqual(refund.type, 'Refund')
@@ -122,7 +122,7 @@ class TestRefundTransaction(AppTestCase):
 
     @mock.patch('sagepaypi.gateway.default_gateway')
     def test_successful_refund_repeat(self, mock_gateway):
-        mock_gateway.submit_transaction.return_value = refund_created_response()
+        mock_gateway.submit_transaction.return_value = created_refund_response()
 
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
         transaction.transaction_id = 'dummy-transaction-id'
@@ -131,7 +131,7 @@ class TestRefundTransaction(AppTestCase):
 
         refund = transaction.refund()
 
-        json = refund_created_response().json()
+        json = created_refund_response().json()
 
         # expected
         self.assertEqual(refund.type, 'Refund')

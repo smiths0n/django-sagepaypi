@@ -5,7 +5,7 @@ import mock
 from sagepaypi.exceptions import InvalidTransactionStatus
 from sagepaypi.models import Transaction
 
-from tests.mocks import release_instruction_transaction
+from tests.mocks import instruction_release_response
 from tests.test_case import AppTestCase
 
 
@@ -87,7 +87,7 @@ class TestReleaseTransaction(AppTestCase):
 
     @mock.patch('sagepaypi.gateway.default_gateway')
     def test_successful_instruction(self, mock_gateway):
-        mock_gateway.submit_transaction_instruction.return_value = release_instruction_transaction()
+        mock_gateway.submit_transaction_instruction.return_value = instruction_release_response()
 
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
         transaction.transaction_id = 'dummy-transaction-id'
@@ -97,7 +97,7 @@ class TestReleaseTransaction(AppTestCase):
 
         transaction.release()
 
-        json = release_instruction_transaction().json()
+        json = instruction_release_response().json()
 
         # expected
         self.assertEqual(transaction.instruction, json['instructionType'])
@@ -105,7 +105,7 @@ class TestReleaseTransaction(AppTestCase):
 
     @mock.patch('sagepaypi.gateway.default_gateway')
     def test_successful_instruction__with_amount(self, mock_gateway):
-        mock_gateway.submit_transaction_instruction.return_value = release_instruction_transaction()
+        mock_gateway.submit_transaction_instruction.return_value = instruction_release_response()
 
         transaction = Transaction.objects.get(pk='ec87ac03-7c34-472c-823b-1950da3568e6')
         transaction.transaction_id = 'dummy-transaction-id'
@@ -116,7 +116,7 @@ class TestReleaseTransaction(AppTestCase):
 
         transaction.release(amount=99)
 
-        json = release_instruction_transaction().json()
+        json = instruction_release_response().json()
 
         # expected
         self.assertEqual(transaction.instruction, json['instructionType'])
