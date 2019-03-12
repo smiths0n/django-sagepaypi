@@ -71,17 +71,21 @@ class CardIdentifierForm(forms.ModelForm):
                 }
             }
 
-            response, merchant_session_key = default_gateway.create_card_identifier(data)
+            card_identifier = default_gateway.create_card_identifier(data)
 
-            data = response.json()
+            if not card_identifier:
+                err = _('Cannot connect to Sagepay, please try again later.')
+                self.add_error(None, err)
 
-            if response.status_code == SagepayHttpResponse.HTTP_201:
-                self.instance.merchant_session_key = merchant_session_key
+            data = card_identifier[0].json()
+
+            if card_identifier[0].status_code == SagepayHttpResponse.HTTP_201:
+                self.instance.merchant_session_key = card_identifier[1]
                 self.instance.card_identifier = data['cardIdentifier']
                 self.instance.card_identifier_expiry = dateutil.parser.parse(data['expiry'])
                 self.instance.card_type = data['cardType']
 
-            elif response.status_code == SagepayHttpResponse.HTTP_422:
+            elif card_identifier[0].status_code == SagepayHttpResponse.HTTP_422:
                 # add any errors relating to the fields filled in
                 # and map them to form field properties
                 error_field_mappings = {

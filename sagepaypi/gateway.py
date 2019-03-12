@@ -49,18 +49,22 @@ class SagepayGateway:
 
         response = requests.post(url, json=post_data, auth=self.basic_auth())
 
-        if response.status_code == SagepayHttpResponse.HTTP_201:
-            data = response.json()
-            merchant_session_key = data['merchantSessionKey']
-            expiry = dateutil.parser.parse(data['expiry'])
+        if response.status_code != SagepayHttpResponse.HTTP_201:
+            return None
 
-            return merchant_session_key, expiry
+        data = response.json()
+        merchant_session_key = data['merchantSessionKey']
+        expiry = dateutil.parser.parse(data['expiry'])
 
-        return None, None
+        return merchant_session_key, expiry
 
     def create_card_identifier(self, data):
         url = '%s/card-identifiers' % self.api_url()
         session_key = self.get_merchant_session_key()
+
+        if not session_key:
+            return None
+
         headers = {'Authorization': 'Bearer %s' % session_key[0]}
 
         return requests.post(url, json=data, headers=headers), session_key[0]
