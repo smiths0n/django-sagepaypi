@@ -83,7 +83,7 @@ class TestForm(AppTestCase):
 
         del data['card_holder_name']
 
-        form = CardIdentifierForm(self.data)
+        form = CardIdentifierForm(data)
 
         self.assertFalse(form.is_valid())
 
