@@ -6,6 +6,11 @@ from tests.test_case import AppTestCase
 
 class TestField(AppTestCase):
 
+    def test_widget(self):
+        field = CardCVCodeField()
+        self.assertTrue(isinstance(field.widget, forms.widgets.PasswordInput))
+        self.assertEqual(field.widget.attrs, {'maxlength': 4})
+
     def test_valid_values(self):
         values = [
             '123',

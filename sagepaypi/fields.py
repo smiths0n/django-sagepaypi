@@ -36,7 +36,7 @@ class CardNumberField(forms.CharField):
 
 
 class CardCVCodeField(forms.CharField):
-    widget = forms.widgets.TextInput(attrs={'maxlength': 4})
+    widget = forms.widgets.PasswordInput(attrs={'maxlength': 4})
     default_error_messages = {
         'required': _('Please enter the three or four digit security code.'),
         'invalid': _('The security code you entered is invalid.'),
