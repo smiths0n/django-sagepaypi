@@ -81,7 +81,7 @@ class Transaction(models.Model):
     currency = models.CharField(
         _('Currency'),
         max_length=3,
-        help_text=_('Currency code of transaction, e.g "GBP = Pounds Sterling".')
+        help_text=_('Currency code of the transaction, e.g "GBP = Pounds Sterling".')
     )
     description = models.TextField(
         _('Description'),

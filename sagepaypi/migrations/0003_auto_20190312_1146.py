@@ -23,6 +23,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='transaction',
             name='currency',
-            field=models.CharField(help_text='Currency code of transaction, e.g "GBP = Pounds Sterling".', max_length=3, verbose_name='Currency'),
+            field=models.CharField(help_text='Currency code of the transaction, e.g "GBP = Pounds Sterling".', max_length=3, verbose_name='Currency'),
         ),
     ]
