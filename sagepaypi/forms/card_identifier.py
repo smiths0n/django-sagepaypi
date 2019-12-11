@@ -76,6 +76,7 @@ class CardIdentifierForm(forms.ModelForm):
             if not card_identifier:
                 err = _('Cannot connect to Sagepay, please try again later.')
                 self.add_error(None, err)
+                return self.cleaned_data
 
             data = card_identifier[0].json()
 
