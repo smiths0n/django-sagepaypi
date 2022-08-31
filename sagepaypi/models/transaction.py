@@ -2,7 +2,6 @@ from datetime import datetime, timezone
 import dateutil
 import uuid
 
-from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db import models
 from django.db.models.manager import BaseManager
@@ -655,7 +654,7 @@ class TransactionResponse(models.Model):
         _('Status code'),
         null=True
     )
-    data = JSONField(
+    data = models.JSONField(
         _('Data'),
         default=dict
     )
